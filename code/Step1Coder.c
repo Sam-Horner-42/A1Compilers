@@ -1,4 +1,4 @@
-/*
+Ôªø/*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2025
@@ -9,23 +9,23 @@
 # ECHO "=---------------------------------------="
 # ECHO "|  COMPILERS - ALGONQUIN COLLEGE (F25)  |"
 # ECHO "=---------------------------------------="
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    î
-# ECHO "    @@                             @@    î
-# ECHO "    @@           %&@@@@@@@@@@@     @@    î
-# ECHO "    @@       @%% (@@@@@@@@@  @     @@    î
-# ECHO "    @@      @& @   @ @       @     @@    î
-# ECHO "    @@     @ @ %  / /   @@@@@@     @@    î
-# ECHO "    @@      & @ @  @@              @@    î
-# ECHO "    @@       @/ @*@ @ @   @        @@    î
-# ECHO "    @@           @@@@  @@ @ @      @@    î
-# ECHO "    @@            /@@    @@@ @     @@    î
-# ECHO "    @@     @      / /     @@ @     @@    î
-# ECHO "    @@     @ @@   /@/   @@@ @      @@    î
-# ECHO "    @@     @@@@@@@@@@@@@@@         @@    î
-# ECHO "    @@                             @@    î
-# ECHO "    @@         S O F I A           @@    î
-# ECHO "    @@                             @@    î
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    î
+# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ‚Äù
+# ECHO "    @@                             @@    ‚Äù
+# ECHO "    @@           %&@@@@@@@@@@@     @@    ‚Äù
+# ECHO "    @@       @%% (@@@@@@@@@  @     @@    ‚Äù
+# ECHO "    @@      @& @   @ @       @     @@    ‚Äù
+# ECHO "    @@     @ @ %  / /   @@@@@@     @@    ‚Äù
+# ECHO "    @@      & @ @  @@              @@    ‚Äù
+# ECHO "    @@       @/ @*@ @ @   @        @@    ‚Äù
+# ECHO "    @@           @@@@  @@ @ @      @@    ‚Äù
+# ECHO "    @@            /@@    @@@ @     @@    ‚Äù
+# ECHO "    @@     @      / /     @@ @     @@    ‚Äù
+# ECHO "    @@     @ @@   /@/   @@@ @      @@    ‚Äù
+# ECHO "    @@     @@@@@@@@@@@@@@@         @@    ‚Äù
+# ECHO "    @@                             @@    ‚Äù
+# ECHO "    @@         S O F I A           @@    ‚Äù
+# ECHO "    @@                             @@    ‚Äù
+# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ‚Äù
 # ECHO "                                         "
 # ECHO "[CODER SCRIPT ..........................]"
 # ECHO "                                         "
@@ -35,7 +35,7 @@
 ***********************************************************
 * File name: Reader.c
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 ñ Compilers, Lab Section: [011, 012, 013]
+* Course: CST 8152 ‚Äì Compilers, Lab Section: [011, 012, 013]
 * Assignment: A12.
 * Date: Sep 01 2025
 * Professor: Paulo Sousa
@@ -63,16 +63,23 @@
 #include "Step1Coder.h"
 #endif
 
-// Function to perform the VigenËre cipher (encoding or decoding)
+// Function to perform the Vigen√®re cipher (encoding or decoding)
 void vigenereFile(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key, sofia_intg encode) {
 	// TO_DO: Define the input and output files (ex: FILE* inputFile, FILE* outputFile
+	FILE* inputFile;
+	inputFile = fopen(inputFileName, 'r');
+
+	// Print some text if the file does not exist
+	if (inputFile == NULL) {
+		printf("Not able to open the file.");
+	}
 	// TO_DO: Use defensive programming (checking files)
 	// TO_DO: Define local variables
 	// TO_DO: Logic: check if it is encode / decode to change the char (using Vigenere algorithm) - next function
 	// TO_DO: Close the files
 }
 
-// Function to perform the VigenËre cipher (encoding or decoding)
+// Function to perform the Vigen√®re cipher (encoding or decoding)
 sofia_strg vigenereMem(const sofia_strg inputFileName, const sofia_strg key, sofia_intg encode) {
 	// TO_DO define the return type and local variables
 	sofia_strg output = NULL;
@@ -97,3 +104,6 @@ sofia_intg getSizeOfFile(const sofia_strg filename) {
     // TO_DO: Use the logic to get the size of the file
     return size;
 }
+
+// References:
+// [1] "C Read Files," www.w3schools.com.https://www.w3schools.com/c/c_files_read.php‚Äå
