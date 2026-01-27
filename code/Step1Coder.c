@@ -84,6 +84,8 @@ void vigenereFile(const sofia_strg inputFileName, const sofia_strg outputFileNam
 	// TO_DO: Use defensive programming (checking files)
 	
 	// TO_DO: Define local variables
+	sofia_strg convertedText;
+
 	// TO_DO: Logic: check if it is encode / decode to change the char (using Vigenere algorithm) - next function
 	// TO_DO: Close the files
 }
