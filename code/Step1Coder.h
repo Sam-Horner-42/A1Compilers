@@ -73,6 +73,6 @@ sofia_strg vigenereMem(const sofia_strg inputFileName, const sofia_strg key, sof
 
 void cypher(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key);
 void decypher(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key);
-sofia_intg getSizeOfFile(const sofia_strg filename);
+sofia_intg getSizeOfFile(const sofia_strg fileName);
 
 #endif

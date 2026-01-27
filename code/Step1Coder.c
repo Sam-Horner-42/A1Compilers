@@ -67,13 +67,22 @@
 void vigenereFile(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key, sofia_intg encode) {
 	// TO_DO: Define the input and output files (ex: FILE* inputFile, FILE* outputFile
 	FILE* inputFile;
+	FILE* outputFile;
 	inputFile = fopen(inputFileName, 'r');
-
+	outputFile = fopen(outputFileName, 'w');
+	// [1]
 	// Print some text if the file does not exist
 	if (inputFile == NULL) {
-		printf("Not able to open the file.");
+		printf("Not able to open the input file: %s", inputFileName);
+	}
+
+	// [1]
+	// Print some text if the file does not exist
+	if (outputFile == NULL) {
+		printf("Not able to open the output file: %s", outputFileName);
 	}
 	// TO_DO: Use defensive programming (checking files)
+	
 	// TO_DO: Define local variables
 	// TO_DO: Logic: check if it is encode / decode to change the char (using Vigenere algorithm) - next function
 	// TO_DO: Close the files
@@ -99,11 +108,33 @@ void decypher(const sofia_strg inputFileName, const sofia_strg outputFileName, c
 }
 
 // TO_DO: Get file size (util method)
-sofia_intg getSizeOfFile(const sofia_strg filename) {
+sofia_intg getSizeOfFile(const sofia_strg fileName) {
 	sofia_intg size = 0;
     // TO_DO: Use the logic to get the size of the file
+	FILE* inputFile;
+
+	inputFile = fopen(fileName, "r");
+	// [1]
+	// Print some text if the file does not exist
+	if (inputFile == NULL) {
+		printf("Not able to open the input file: %s", fileName);
+		return 1; // Error code 1
+	}
+
+	//[2]
+	fseek(inputFile, 0L, SEEK_END); // Go through to the end of the file
+
+	// Calculating the size of the file
+	size = ftell(inputFile);
+
+	// Closing the file
+	fclose(inputFile);
+
     return size;
 }
 
 // References:
-// [1] "C Read Files," www.w3schools.com.https://www.w3schools.com/c/c_files_read.php‌
+// [1] W3Schools, "C Read Files," www.w3schools.com.https://www.w3schools.com/c/c_files_read.php‌
+// [2] GeeksforGeeks, “C Program to find size of a File, ” GeeksforGeeks, Apr. 28, 2018. https://www.geeksforgeeks.org/c/c-program-find-size-file/ (accessed Jan. 27, 2026).
+
+‌
