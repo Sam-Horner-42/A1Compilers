@@ -104,15 +104,15 @@
 */
 
 // Main function to handle command-line arguments
-sofia_intg main1Coder(sofia_intg argc, sofia_strg* argv) {
+digit main1Coder(digit argc, word* argv) {
 	if (argc < 5) {
 		printf("Usage: %s [cypher=1|decypher=0] <input_file> <output_file>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-	sofia_strg operation = "";
-	sofia_strg inputFileName = "";
-	sofia_strg key = STR_LANGNAME;
-	sofia_strg outputFileName = "";
+	word operation = "";
+	word inputFileName = "";
+	word key = STR_LANGNAME;
+	word outputFileName = "";
 	if (argc > 4) {
 		operation = argv[2];
 		inputFileName = argv[3];
@@ -128,8 +128,8 @@ sofia_intg main1Coder(sofia_intg argc, sofia_strg* argv) {
 		}
 		printf("Operation '%s' completed successfully.\n", operation);
 		// Call the other operation in memory
-		sofia_intg size = getSizeOfFile(outputFileName);
-		sofia_strg output;
+		digit size = getSizeOfFile(outputFileName);
+		word output;
 		if (atoi(operation) == CYPHER)
 			output = vigenereMem(outputFileName, key, DECYPHER);
 		else 

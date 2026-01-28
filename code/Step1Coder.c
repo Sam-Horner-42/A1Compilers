@@ -64,7 +64,7 @@
 #endif
 
 // Function to perform the Vigenère cipher (encoding or decoding)
-void vigenereFile(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key, sofia_intg encode) {
+empty vigenereFile(const word inputFileName, const word outputFileName, const word key, digit encode) {
 	// TO_DO: Define the input and output files (ex: FILE* inputFile, FILE* outputFile
 	FILE* inputFile;
 	FILE* outputFile;
@@ -79,39 +79,49 @@ void vigenereFile(const sofia_strg inputFileName, const sofia_strg outputFileNam
 	// [1]
 	// Print some text if the file does not exist
 	if (outputFile == NULL) {
-		printf("Not able to open the output file: %s", outputFileName);
+		fprintf(stderr, "Not able to open the output file: %s", outputFileName);
 	}
 	// TO_DO: Use defensive programming (checking files)
+	if (encode != CYPHER && encode != DECYPHER) { printf("Incorrect cypher code"); }
+	else if (encode == CYPHER) { cypher(inputFileName, outputFileName, key); }
+	else if (encode == CYPHER) { decypher(inputFileName, outputFileName, key); }
 	
 	// TO_DO: Define local variables
-	sofia_strg convertedText;
+	word convertedText;
 
 	// TO_DO: Logic: check if it is encode / decode to change the char (using Vigenere algorithm) - next function
 	// TO_DO: Close the files
 }
 
 // Function to perform the Vigenère cipher (encoding or decoding)
-sofia_strg vigenereMem(const sofia_strg inputFileName, const sofia_strg key, sofia_intg encode) {
+word vigenereMem(const word inputFileName, const word key, digit encode) {
 	// TO_DO define the return type and local variables
-	sofia_strg output = NULL;
+	word output = NULL;
 	// TO_DO: Check defensive programming
+	if (encode == CYPHER) {
+
+	}
+	else if (encode == DECYPHER) {
+
+	}
+	
 	// TO_DO: Use the logic to code/decode - consider the logic about visible chars only
 	return output;
 }
 
 // Function to encode (cypher)
-void cypher(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key) {
+void cypher(const word inputFileName, const word outputFileName, const word key) {
     vigenereFile(inputFileName, outputFileName, key, CYPHER);
 }
 
 // Function to decode (decypher)
-void decypher(const sofia_strg inputFileName, const sofia_strg outputFileName, const sofia_strg key) {
+void decypher(const word inputFileName, const word outputFileName, const word key) {
     vigenereFile(inputFileName, outputFileName, key, DECYPHER);
 }
 
 // TO_DO: Get file size (util method)
-sofia_intg getSizeOfFile(const sofia_strg fileName) {
-	sofia_intg size = 0;
+digit getSizeOfFile(const word fileName) {
+	digit size = 0;
     // TO_DO: Use the logic to get the size of the file
 	FILE* inputFile;
 
@@ -137,6 +147,4 @@ sofia_intg getSizeOfFile(const sofia_strg fileName) {
 
 // References:
 // [1] W3Schools, "C Read Files," www.w3schools.com.https://www.w3schools.com/c/c_files_read.php‌
-// [2] GeeksforGeeks, “C Program to find size of a File, ” GeeksforGeeks, Apr. 28, 2018. https://www.geeksforgeeks.org/c/c-program-find-size-file/ (accessed Jan. 27, 2026).
-
-‌
+// [2] GeeksforGeeks, “C Program to find size of a File, ” GeeksforGeeks, Apr. 28, 2018. https://www.geeksforgeeks.org/c/c-program-find-size-file/ (accessed Jan. 27, 2026).‌

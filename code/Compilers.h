@@ -60,11 +60,11 @@
 
 /* TO_DO: Adjust your language (cannot be "Sofia") */
 /* Language name */
-#define STR_LANGNAME	"Sofia"
+#define STR_LANGNAME	"Stelline"
 
 /* Logical constants - adapt for your language */
-#define SOFIA_TRUE  1
-#define SOFIA_FALSE 0
+#define TRUE  1
+#define FALSE 0
 
 #define INVALID NULL
 #define EOF_CHAR '\0'
@@ -78,17 +78,17 @@ NOTE: Some types may not be directly used by your language,
 */
 
 /* TO_DO: Define your typedefs */
-typedef char			sofia_char;
-typedef char*			sofia_strg;
-typedef int				sofia_intg;
-typedef float			sofia_real;
-typedef void			sofia_void;
+typedef char			character;
+typedef char*			word;
+typedef int				digit;
+typedef float			rad;
+typedef void			empty;
 
-typedef unsigned char	sofia_boln;
-typedef unsigned char	sofia_byte;
+typedef unsigned char	duple;
+typedef unsigned char	byte;
 
-typedef long			sofia_long;
-typedef double			sofia_doub;
+typedef long			bigdigit;
+typedef double			bigrad;
 
 /*
 ------------------------------------------------------------
@@ -114,10 +114,10 @@ Main functions signatures
 (Code will be updated during next assignments)
 ------------------------------------------------------------
 */
-sofia_intg main1Coder	(sofia_intg argc, sofia_strg* argv);
+digit main1Coder	(digit argc, word* argv);
 
-sofia_void printLogo();
-sofia_void errorPrint(sofia_strg fmt, ...);
+empty printLogo();
+empty errorPrint(word fmt, ...);
 
 #endif
 
