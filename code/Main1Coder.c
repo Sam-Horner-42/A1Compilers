@@ -80,11 +80,6 @@
 #define ANSI_C 1
 #endif
 
-/*
- * TODO .......................................................................
- * Basically, change all datatypes to your language definitions
- * (see "Compilers.h")
- */
 
 /*
  * -------------------------------------------------------------
