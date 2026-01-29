@@ -2,7 +2,7 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2025
-* Author: TO_DO
+* Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
 #
@@ -117,7 +117,7 @@ digit main1Coder(digit argc, word* argv) {
 		operation = argv[2];
 		inputFileName = argv[3];
 		outputFileName = argv[4];
-		// Call the appropriate function to file
+		// Call the appropriate function to output the values to the file
 		if (atoi(operation) == CYPHER)
 			cypher(inputFileName, outputFileName, key);
 		else if (atoi(operation) == DECYPHER)
@@ -127,7 +127,7 @@ digit main1Coder(digit argc, word* argv) {
 			return EXIT_FAILURE;
 		}
 		printf("Operation '%s' completed successfully.\n", operation);
-		// Call the other operation in memory
+		// Call the other operation in memory, to print the output
 		digit size = getSizeOfFile(outputFileName);
 		word output;
 		if (atoi(operation) == CYPHER)

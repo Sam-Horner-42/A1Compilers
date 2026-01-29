@@ -2,34 +2,10 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2025
-* Author: TO_DO
+* Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-#
-# ECHO "=---------------------------------------="
-# ECHO "|  COMPILERS - ALGONQUIN COLLEGE (F25)  |"
-# ECHO "=---------------------------------------="
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@           %&@@@@@@@@@@@     @@    ”
-# ECHO "    @@       @%% (@@@@@@@@@  @     @@    ”
-# ECHO "    @@      @& @   @ @       @     @@    ”
-# ECHO "    @@     @ @ %  / /   @@@@@@     @@    ”
-# ECHO "    @@      & @ @  @@              @@    ”
-# ECHO "    @@       @/ @*@ @ @   @        @@    ”
-# ECHO "    @@           @@@@  @@ @ @      @@    ”
-# ECHO "    @@            /@@    @@@ @     @@    ”
-# ECHO "    @@     @      / /     @@ @     @@    ”
-# ECHO "    @@     @ @@   /@/   @@@ @      @@    ”
-# ECHO "    @@     @@@@@@@@@@@@@@@         @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@         S O F I A           @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "                                         "
-# ECHO "[CODER SCRIPT ..........................]"
-# ECHO "                                         "
-*/
+* /
 
 /*
 ***********************************************************
@@ -78,7 +54,6 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     }
 
     // Open neccessary input and output files
-    
     FILE* inputFile = fopen(inputFileName, "r");
 
     // Check to make sure the files were found and opened correctly
@@ -96,30 +71,30 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
 
     int keyLen = strlen(key); // Length of the key used
     int keyIndex = 0; // The current index to apply to
-    int c;  // Incoming character from file stored as an int to avoid truncation
+    int currentChar;  // Incoming character from file stored as an int to avoid truncation
 
-    while ((c = fgetc(inputFile)) != EOF) {
+    while ((currentChar = fgetc(inputFile)) != EOF) {
 
         // Only modify visible ASCII characters
-        if (c >= ASCII_START && c <= ASCII_END) {
+        if (currentChar >= ASCII_START && currentChar <= ASCII_END) {
 
             int shift = key[keyIndex % keyLen] - ASCII_START;
 
             if (encode == CYPHER) {
                 // Forward shift
-                c = ASCII_START +
-                    ((c - ASCII_START) + shift) % ASCII_RANGE;
+                currentChar = ASCII_START +
+                    ((currentChar - ASCII_START) + shift) % ASCII_RANGE;
             }
             else {
                 // Backward shift (decode)
-                c = ASCII_START +
-                    ((c - ASCII_START) - shift + ASCII_RANGE) % ASCII_RANGE;
+                currentChar = ASCII_START +
+                    ((currentChar - ASCII_START) - shift + ASCII_RANGE) % ASCII_RANGE;
             }
 
             keyIndex++;
         }
 
-        fputc(c, outputFile);
+        fputc(currentChar, outputFile); // Put the current character into the file
     }
 
     // Close files
@@ -149,7 +124,8 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     }
 
     // Allocate memory for output using malloc
-    word output = (word)malloc(size + 1);   // +1 for '\0'
+    word output = (word)malloc(size + 1);   // +1 for null terminator char
+    // Check if the allocation failed
     if (output == NULL) {
         fprintf(stderr, "Memory allocation failed.\n");
         return NULL;
@@ -157,43 +133,46 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
 
     // Load entire file into memory
     FILE* file = fopen(inputFileName, "r");
+    // Check if file failed to open
     if (file == NULL) {
         fprintf(stderr, "Unable to open file: %s\n", inputFileName);
         free(output);
         return NULL;
     }
 
-    digit bytesRead = fread(output, 1, size, file);
-    fclose(file);
 
+    digit bytesRead = fread(output, 1, size, file); // Read the whole file into the buffer
+    fclose(file); // avoid memory leaks
+
+    // All the bytes were read into the buffer successfully
     if (bytesRead != size) {
         fprintf(stderr, "Error reading file contents.\n");
         free(output);
         return NULL;
     }
 
-    output[size] = '\0';  // Null-terminate
+    output[size] = '\0';  // Null-terminate for safety
 
     // Apply cypher to buffer
     digit keyLen = strlen(key);
     digit keyIndex = 0;
 
     for (digit i = 0; i < size; i++) {
-        digit c = output[i];
+        digit currentChar = output[i];
 
         // Only change visible ASCII 32–126
-        if (c >= ASCII_START && c <= ASCII_END) {
+        if (currentChar >= ASCII_START && currentChar <= ASCII_END) {
 
             digit shift = key[keyIndex % keyLen] - ASCII_START;
 
             if (encode == CYPHER) {
-                c = ASCII_START + ((c - ASCII_START + shift) % ASCII_RANGE);
+                currentChar = ASCII_START + ((currentChar - ASCII_START + shift) % ASCII_RANGE);
             }
             else {
-                c = ASCII_START + ((c - ASCII_START - shift + ASCII_RANGE) % ASCII_RANGE);
+                currentChar = ASCII_START + ((currentChar - ASCII_START - shift + ASCII_RANGE) % ASCII_RANGE);
             }
 
-            output[i] = c;
+            output[i] = currentChar;
             keyIndex++;
         }
     }
