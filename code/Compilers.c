@@ -102,7 +102,10 @@ digit main(int argc, char** argv) {
 */
 
 empty printLogo() {
-	printf("STELLINE");
+	printf("\t    [STELLINE]\n");
+	printf("---------------------------------------\n");
+	printf("      [A Star Coding Language]\n");
+	printf("---------------------------------------");
 }
 
 /*
