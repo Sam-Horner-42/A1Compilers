@@ -5,30 +5,7 @@
 * Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-#
-# ECHO "=---------------------------------------="
-# ECHO "|  COMPILERS - ALGONQUIN COLLEGE (F25)  |"
-# ECHO "=---------------------------------------="
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@           %&@@@@@@@@@@@     @@    ”
-# ECHO "    @@       @%% (@@@@@@@@@  @     @@    ”
-# ECHO "    @@      @& @   @ @       @     @@    ”
-# ECHO "    @@     @ @ %  / /   @@@@@@     @@    ”
-# ECHO "    @@      & @ @  @@              @@    ”
-# ECHO "    @@       @/ @*@ @ @   @        @@    ”
-# ECHO "    @@           @@@@  @@ @ @      @@    ”
-# ECHO "    @@            /@@    @@@ @     @@    ”
-# ECHO "    @@     @      / /     @@ @     @@    ”
-# ECHO "    @@     @ @@   /@/   @@@ @      @@    ”
-# ECHO "    @@     @@@@@@@@@@@@@@@         @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@         S O F I A           @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "                                         "
-# ECHO "[COMPILER SCRIPT .......................]"
-# ECHO "                                         "
+#                                       "
 */
 
 /*
@@ -58,7 +35,6 @@
  * ............................................................................
  */
 
-/* TO_DO: Adjust your language (cannot be "Sofia") */
 /* Language name */
 #define STR_LANGNAME	"Stelline"
 
@@ -77,7 +53,6 @@ NOTE: Some types may not be directly used by your language,
 ------------------------------------------------------------
 */
 
-/* TO_DO: Define your typedefs */
 typedef char			character;
 typedef char*			word;
 typedef int				digit;
