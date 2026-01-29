@@ -131,9 +131,9 @@ digit main1Coder(digit argc, word* argv) {
 		digit size = getSizeOfFile(outputFileName);
 		word output;
 		if (atoi(operation) == CYPHER)
-			output = vigenereMem(outputFileName, key, DECYPHER);
+			output = vigenereMem(inputFileName, key, CYPHER);
 		else 
-			output = vigenereMem(outputFileName, key, CYPHER);
+			output = vigenereMem(inputFileName, key, DECYPHER);
 		printf("OUTPUT:\n%s\n", output);
 	}
 	return EXIT_SUCCESS;
