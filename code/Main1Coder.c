@@ -5,7 +5,6 @@
 * Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-                                        "
 */
 
 /*
@@ -19,20 +18,6 @@
 * Purpose: This file is the main code for Buffer/Reader (A12)
 * Function list: (...).
 *************************************************************/
-
-/*
- *.............................................................................
- * ADVICE 1:
- * Please check the "TODO" labels to develop your activity.
- *
- * ADVICE 2: Preprocessor directives
- * The #define _CRT_SECURE_NO_WARNINGS should be used in MS Visual Studio projects
- * to suppress the warnings about using "unsafe" functions like fopen()
- * and standard sting library functions defined in string.h.
- * The define directive does not have any effect on other compiler projects 
- * (Gcc, VSCode, Codeblocks, etc.).
- *.............................................................................
- */
 
 #define _CRT_SECURE_NO_WARNINGS 
 

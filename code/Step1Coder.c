@@ -19,13 +19,6 @@
 ************************************************************
 */
 
-/*
- *.............................................................................
- * MAIN ADVICE:
- * - Please check the "TODO" labels to develop your activity.
- * - Review the functions to use "Defensive Programming".
- *.............................................................................
- */
 
 #include <stdio.h>
 #include <stdlib.h>
