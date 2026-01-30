@@ -88,7 +88,7 @@ Main functions signatures
 (Code will be updated during next assignments)
 ------------------------------------------------------------
 */
-digit main1Coder	(digit argc, word* argv);
+digit main1Coder(digit argc, word* argv);
 
 empty printLogo();
 empty errorPrint(word fmt, ...);

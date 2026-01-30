@@ -5,7 +5,7 @@
 * Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-* /
+*/
 
 /*
 ***********************************************************
@@ -70,6 +70,13 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     }
 
     int keyLen = strlen(key); // Length of the key used
+    // Check to make sure the key inputted is not empty
+    if (strlen(key) == 0) {
+        fprintf(stderr, "Key cannot be empty.\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        return;
+    }
     int keyIndex = 0; // The current index to apply to
     int currentChar;  // Incoming character from file stored as an int to avoid truncation
 
@@ -127,6 +134,7 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     word output = (word)malloc(size + 1);   // +1 for null terminator char
     // Check if the allocation failed
     if (output == HOLLOW) {
+        free(output);
         fprintf(stderr, "Memory allocation failed.\n");
         return HOLLOW;
     }
@@ -154,7 +162,14 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     output[size] = EOF_CHAR;  // Null-terminate for safety
 
     // Apply cypher to buffer
-    digit keyLen = strlen(key);
+    digit keyLen = strlen(key); // Length of the key to creat the array
+    // Check to make sure the key is not empty
+    if (strlen(key) == 0) {
+        fprintf(stderr, "Key cannot be empty.\n");
+        return HOLLOW;
+    }
+    
+    // The first index in the key
     digit keyIndex = 0;
 
     for (digit i = 0; i < size; i++) {
@@ -174,6 +189,10 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
 
             output[i] = currentChar; // Append the char to the buffer
             keyIndex++; // Increment the key value
+        } else if (currentChar < 0 || currentChar > ASCII_END) {
+            fprintf(stderr, "Invalid ASCII value detected in file.\n");
+            free(output);
+            return HOLLOW;
         }
     }
 
@@ -201,7 +220,7 @@ digit getSizeOfFile(const word fileName) {
 	// Print some text if the file does not exist
 	if (inputFile == HOLLOW) {
 		printf("Not able to open the input file: %s", fileName);
-		return 1; // Error code 1
+		return 0; // Size of the file is 0
 	}
 
 	//[2]
@@ -209,6 +228,11 @@ digit getSizeOfFile(const word fileName) {
 
 	// Calculating the size of the file
 	size = ftell(inputFile);
+    if (size < 0) {
+        fprintf(stderr, "Error determining file size.\n");
+        fclose(inputFile);
+        return 0;
+    }
 
 	// Closing the file
 	fclose(inputFile);

@@ -31,16 +31,6 @@
 #endif
 
 /*
- * ............................................................................
- * ADVICE 1:
- * Please check the "TODO" labels to develop your activity.
- *
- * ADVICE 2: This file must be updated according to each assignment
- * (see the progression: reader > scanner > parser).
- * ............................................................................
- */
-
-/*
 ***********************************************************
 * Function name: main
 * Purpose: Main function
@@ -102,7 +92,7 @@ digit main(int argc, char** argv) {
 */
 
 empty printLogo() {
-	printf("\t    [STELLINE]\n");
+	printf("\t   * [STELLINE] *\n");
 	printf("---------------------------------------\n");
 	printf("      [A Star Coding Language]\n");
 	printf("---------------------------------------");
