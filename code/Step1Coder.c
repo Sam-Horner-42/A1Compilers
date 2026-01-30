@@ -133,7 +133,7 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     }
 
     // Load entire file into memory
-    FILE* file = fopen(inputFileName, "r");
+    FILE* file = fopen(inputFileName, "rb");
     // Check if file failed to open
     if (file == HOLLOW) {
         fprintf(stderr, "Unable to open file: %s\n", inputFileName);
@@ -146,6 +146,7 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     fclose(file); // Avoid memory leaks
 
     // All the bytes were read into the buffer successfully
+
     if (bytesRead != size) {
         fprintf(stderr, "Error reading file contents.\n");
         free(output);
