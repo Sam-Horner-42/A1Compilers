@@ -5,12 +5,11 @@
 * Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-                                        "
 */
 
 /*
 ************************************************************
-* File name: Reader.h
+* File name: Step1Coder.h
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: [011, 012]
 * Assignment: A12.

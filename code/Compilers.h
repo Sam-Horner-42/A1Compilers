@@ -5,7 +5,6 @@
 * Author: Sam Horner
 * Professors: Paulo Sousa
 ************************************************************
-#                                       "
 */
 
 /*
@@ -42,7 +41,7 @@
 #define TRUE  1
 #define FALSE 0
 
-#define INVALID NULL
+#define HOLLOW NULL
 #define EOF_CHAR '\0'
 
 /*

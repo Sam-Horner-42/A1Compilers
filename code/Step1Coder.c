@@ -9,10 +9,10 @@
 
 /*
 ***********************************************************
-* File name: Reader.c
+* File name: Step1Coder.c
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
-* Assignment: A12.
+* Assignment: A1 - Coder Implementation.
 * Date: Sep 01 2025
 * Professor: Paulo Sousa
 * Purpose: This file is the main code for Buffer/Reader (A12)
@@ -39,10 +39,10 @@
 #include "Step1Coder.h"
 #endif
 
-// Function to perform the Vigenère cipher (encoding or decoding)
+// Function to perform the Vigenère cipher (encoding or decoding) [3]
 empty vigenereFile(const word inputFileName, const word outputFileName, const word key, digit encode) {
     // Defensive programming, check for missing parameters
-    if (inputFileName == NULL || outputFileName == NULL || key == NULL) {
+    if (inputFileName == HOLLOW || outputFileName == HOLLOW || key == HOLLOW) {
         fprintf(stderr, "Invalid parameter passed to vigenereFile.\n");
         return;
     }
@@ -57,13 +57,13 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     FILE* inputFile = fopen(inputFileName, "r");
 
     // Check to make sure the files were found and opened correctly
-    if (inputFile == NULL) {
+    if (inputFile == HOLLOW) {
         fprintf(stderr, "Not able to open input file: %s\n", inputFileName);
         return;
     }
 
     FILE* outputFile = fopen(outputFileName, "w");
-    if (outputFile == NULL) {
+    if (outputFile == HOLLOW) {
         fprintf(stderr, "Not able to open output file: %s\n", outputFileName);
         fclose(inputFile); // Close input file if we can't find/open output
         return;
@@ -102,56 +102,56 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     fclose(outputFile);
 }
 
-// Function to perform the Vigenère cipher (encoding or decoding)
+// Function to perform the Vigenère cipher (encoding or decoding) [3]
 word vigenereMem(const word inputFileName, const word key, digit encode) {
 
     // Defensive programming
-    if (inputFileName == NULL || key == NULL) {
+    if (inputFileName == HOLLOW || key == HOLLOW) {
         fprintf(stderr, "Invalid parameters passed to vigenereMem.\n");
-        return NULL;
+        return HOLLOW;
     }
 
     if (encode != CYPHER && encode != DECYPHER) {
         fprintf(stderr, "Incorrect cypher code.\n");
-        return NULL;
+        return HOLLOW;
     }
 
     // Get file size
     digit size = getSizeOfFile(inputFileName);
     if (size <= 0) {
         fprintf(stderr, "File is empty or could not be opened.\n");
-        return NULL;
+        return HOLLOW;
     }
 
     // Allocate memory for output using malloc
     word output = (word)malloc(size + 1);   // +1 for null terminator char
     // Check if the allocation failed
-    if (output == NULL) {
+    if (output == HOLLOW) {
         fprintf(stderr, "Memory allocation failed.\n");
-        return NULL;
+        return HOLLOW;
     }
 
     // Load entire file into memory
     FILE* file = fopen(inputFileName, "r");
     // Check if file failed to open
-    if (file == NULL) {
+    if (file == HOLLOW) {
         fprintf(stderr, "Unable to open file: %s\n", inputFileName);
         free(output);
-        return NULL;
+        return HOLLOW;
     }
 
 
     digit bytesRead = fread(output, 1, size, file); // Read the whole file into the buffer
-    fclose(file); // avoid memory leaks
+    fclose(file); // Avoid memory leaks
 
     // All the bytes were read into the buffer successfully
     if (bytesRead != size) {
         fprintf(stderr, "Error reading file contents.\n");
         free(output);
-        return NULL;
+        return HOLLOW;
     }
 
-    output[size] = '\0';  // Null-terminate for safety
+    output[size] = EOF_CHAR;  // Null-terminate for safety
 
     // Apply cypher to buffer
     digit keyLen = strlen(key);
@@ -172,8 +172,8 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
                 currentChar = ASCII_START + ((currentChar - ASCII_START - shift + ASCII_RANGE) % ASCII_RANGE);
             }
 
-            output[i] = currentChar;
-            keyIndex++;
+            output[i] = currentChar; // Append the char to the buffer
+            keyIndex++; // Increment the key value
         }
     }
 
@@ -191,16 +191,15 @@ void decypher(const word inputFileName, const word outputFileName, const word ke
     vigenereFile(inputFileName, outputFileName, key, DECYPHER);
 }
 
-// TO_DO: Get file size (util method)
+// Get file size (util method)
 digit getSizeOfFile(const word fileName) {
-	digit size = 0;
-    // TO_DO: Use the logic to get the size of the file
-	FILE* inputFile;
+	digit size = 0; // The size of the file
+	FILE* inputFile; // The file coming in
 
 	inputFile = fopen(fileName, "r");
 	// [1]
 	// Print some text if the file does not exist
-	if (inputFile == NULL) {
+	if (inputFile == HOLLOW) {
 		printf("Not able to open the input file: %s", fileName);
 		return 1; // Error code 1
 	}
@@ -220,3 +219,4 @@ digit getSizeOfFile(const word fileName) {
 // References:
 // [1] W3Schools, "C Read Files," www.w3schools.com.https://www.w3schools.com/c/c_files_read.php‌
 // [2] GeeksforGeeks, “C Program to find size of a File, ” GeeksforGeeks, Apr. 28, 2018. https://www.geeksforgeeks.org/c/c-program-find-size-file/ (accessed Jan. 27, 2026).‌
+// [3] GeeksforGeeks, “Vigenere Cipher, ” GeeksforGeeks, Oct. 07, 2016. https://www.geeksforgeeks.org/dsa/vigenere-cipher/‌
