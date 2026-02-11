@@ -22,7 +22,7 @@ project ("Compilers")
 add_executable (Compilers 
 	"Compilers.h"		"Compilers.c"
 	"Step1Coder.h"		"Step1Coder.c"	
-	"Step2Reader.h" "Step2Reader.h"
+	"Step2Reader.h" "Step2Reader.c"
 	"Main2Reader.c"	"Main1Coder.c"
  )
 

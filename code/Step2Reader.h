@@ -79,56 +79,56 @@
 
 /* Offset declaration */
 typedef struct position {
-	sofia_intg wrte;					/* the offset to the add chars (in chars) */
-	sofia_intg read;					/* the offset to the get a char position (in chars) */
-	sofia_intg mark;					/* the offset to the mark position (in chars) */
+	digit wrte;					/* the offset to the add chars (in chars) */
+	digit read;					/* the offset to the get a char position (in chars) */
+	digit mark;					/* the offset to the mark position (in chars) */
 } Position;
 
 /* Flags declaration */
 typedef struct flag {
-	sofia_boln isEmpty;					/* checks if there is no content */
-	sofia_boln isFull;					/* the content is using all size */
-	sofia_boln isRead;					/* all content was read */
-	sofia_boln isMoved;					/* the content was moved in reallocation */
+	duple isEmpty;					/* checks if there is no content */
+	duple isFull;					/* the content is using all size */
+	duple isRead;					/* all content was read */
+	duple isMoved;					/* the content was moved in reallocation */
 } Flag;
 
 /* Buffer structure */
 typedef struct bufferReader {
-	sofia_strg		content;			/* pointer to the beginning of character array (character buffer) */
-	sofia_intg		size;				/* current dynamic memory size (in bytes) allocated to character buffer */
-	sofia_real		factor;				/* factor for increase the buffer */
-	Flag			flags;				/* contains character array reallocation flag and end-of-buffer flag */
-	Position		position;			/* Offset / position field */
-	sofia_intg		histogram[NCHAR];	/* Statistics of chars */
-	sofia_intg		numReaderErrors;	/* Number of errors from Reader */
-	sofia_intg		checkSum;			/* Sum of bytes(chars) */
+	word		content;			/* pointer to the beginning of character array (character buffer) */
+	digit		size;				/* current dynamic memory size (in bytes) allocated to character buffer */
+	rad			factor;				/* factor for increase the buffer */
+	Flag		flags;				/* contains character array reallocation flag and end-of-buffer flag */
+	Position	position;			/* Offset / position field */
+	digit		histogram[NCHAR];	/* Statistics of chars */
+	digit		numReaderErrors;	/* Number of errors from Reader */
+	digit		checkSum;			/* Sum of bytes(chars) */
 } Buffer, * BufferPointer;
 
 /* FUNCTIONS DECLARATION:  .................................. */
 
 /* General Operations */
-BufferPointer	readerCreate(sofia_intg, sofia_real);
-BufferPointer	readerAddChar(BufferPointer const, sofia_char);
-sofia_boln		readerClear(BufferPointer const);
-sofia_boln		readerFree(BufferPointer const);
-sofia_boln		readerIsFull(BufferPointer const);
-sofia_boln		readerIsEmpty(BufferPointer const);
-sofia_boln		readerSetMark(BufferPointer const, sofia_intg);
-sofia_intg		readerPrint(BufferPointer const);
-sofia_intg		readerLoad(BufferPointer const, sofia_strg);
-sofia_boln		readerRecover(BufferPointer const);
-sofia_boln		readerRetract(BufferPointer const);
-sofia_boln		readerRestore(BufferPointer const);
-sofia_intg		readerChecksum(BufferPointer const);
+BufferPointer	readerCreate(digit, rad);
+BufferPointer	readerAddChar(BufferPointer const, character);
+duple	readerClear(BufferPointer const);
+duple	readerFree(BufferPointer const);
+duple	readerIsFull(BufferPointer const);
+duple	readerIsEmpty(BufferPointer const);
+duple	readerSetMark(BufferPointer const, digit);
+digit	readerPrint(BufferPointer const);
+digit	readerLoad(BufferPointer const, word);
+duple	readerRecover(BufferPointer const);
+duple	readerRetract(BufferPointer const);
+duple	readerRestore(BufferPointer const);
+digit	readerChecksum(BufferPointer const);
 /* Getters */
-sofia_char		readerGetChar(BufferPointer const);
-sofia_strg		readerGetContent(BufferPointer const, sofia_intg);
-sofia_intg		readerGetPosRead(BufferPointer const);
-sofia_intg		readerGetPosWrte(BufferPointer const);
-sofia_intg		readerGetPosMark(BufferPointer const);
-sofia_intg		readerGetSize(BufferPointer const);
-sofia_void		readerPrintFlags(BufferPointer const);
-sofia_void		readerPrintStat(BufferPointer const);
-sofia_intg		readerNumErrors(BufferPointer const);
+character	readerGetChar(BufferPointer const);
+word	readerGetContent(BufferPointer const, digit);
+digit 	readerGetPosRead(BufferPointer const);
+digit	readerGetPosWrte(BufferPointer const);
+digit	readerGetPosMark(BufferPointer const);
+digit	readerGetSize(BufferPointer const);
+empty	readerPrintFlags(BufferPointer const);
+empty	readerPrintStat(BufferPointer const);
+digit	readerNumErrors(BufferPointer const);
 
 #endif
