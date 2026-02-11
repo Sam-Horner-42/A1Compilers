@@ -73,7 +73,7 @@
 empty displayBuffer(BufferPointer ptr_Buffer);
 bigdigit getFileSize(wordfname);
 digit isNumber(const word ns);
-sofia_void startReader(sofia_strg, sofia_strg, sofia_intg, sofia_real);
+empty startReader(word, word, digit, rad);
 
 /*
 ************************************************************
@@ -85,13 +85,13 @@ sofia_void startReader(sofia_strg, sofia_strg, sofia_intg, sofia_real);
 ************************************************************
 */
 
-sofia_intg main2Reader(sofia_intg argc, sofia_strg* argv) {
+digit main2Reader(digit argc, word* argv) {
 
 	/* Create source input buffer */
-	sofia_strg program = argv[0];
-	sofia_strg input = argv[2];
-	sofia_intg size = 0;
-	sofia_real factor = 0.0f;
+	word program = argv[0];
+	word input = argv[2];
+	digit size = 0;
+	rad factor = 0.0f;
 	/* Missing file name or/and mode parameter */
 	if (argc <= 2) {
 		errorPrint("\nDate: %s  Time: %s", __DATE__, __TIME__);
@@ -118,10 +118,10 @@ sofia_intg main2Reader(sofia_intg argc, sofia_strg* argv) {
 *	- Increment: buffer increment.
 ************************************************************
 */
-sofia_void startReader(sofia_strg program, sofia_strg input, sofia_intg size, sofia_real factor) {
+empty startReader(word program, word input, digit size, rad factor) {
 
 	BufferPointer bufferp;		/* pointer to Buffer structure */
-	sofia_intg loadSize = 0;	/* the size of the file loaded in the buffer */
+	digit loadSize = 0;	/* the size of the file loaded in the buffer */
 
 	/* Create buffer */
 	bufferp = readerCreate(READER_DEFAULT_SIZE, READER_DEFAULT_FACTOR);
@@ -169,9 +169,9 @@ sofia_void startReader(sofia_strg program, sofia_strg input, sofia_intg size, so
 ************************************************************
 */
 
-sofia_long getFileSize(sofia_strg fname) {
+bigdigit getFileSize(word fname) {
 	FILE* input;
-	sofia_long flength;
+	bigdigit flength;
 	input = fopen(fname, "r");
 	if (input == NULL) {
 		errorPrint("%s%s", "Cannot open file: ", fname);
@@ -193,8 +193,8 @@ sofia_long getFileSize(sofia_strg fname) {
 ************************************************************
 */
 
-sofia_intg isNumber(const sofia_strg ns) {
-	sofia_char c; sofia_intg i = 0;
+digit isNumber(const word ns) {
+	character c; digit i = 0;
 	if (ns == NULL) return 0;
 	while ((c = ns[i++]) == 0) {
 		if (!isdigit(c)) return 0;
@@ -209,7 +209,7 @@ sofia_intg isNumber(const sofia_strg ns) {
 *	- Params: buffer to print all properties.
 ************************************************************
 */
-sofia_void displayBuffer(BufferPointer ptr_Buffer) {
+empty displayBuffer(BufferPointer ptr_Buffer) {
 	printf("\nPrinting buffer parameters:\n\n");
 	printf("The size of the buffer is:  %d\n",
 		readerGetSize(ptr_Buffer));
