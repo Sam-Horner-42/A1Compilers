@@ -70,9 +70,9 @@
  *  Function declarations
  * -------------------------------------------------------------
  */
-sofia_void displayBuffer(BufferPointer ptr_Buffer);
-sofia_long getFileSize(sofia_strg fname);
-sofia_intg isNumber(const sofia_strg ns);
+empty displayBuffer(BufferPointer ptr_Buffer);
+bigdigit getFileSize(wordfname);
+digit isNumber(const word ns);
 sofia_void startReader(sofia_strg, sofia_strg, sofia_intg, sofia_real);
 
 /*
