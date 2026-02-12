@@ -65,20 +65,22 @@
 
 BufferPointer readerCreate(digit size, rad factor) {
 	BufferPointer readerPointer = NULL;
-	if (!size) {
+	if (!size || size < 1) {
 		size = READER_DEFAULT_SIZE;
-	} else if (size < 1) {
-		printf("Size must be positive.");
-		return NULL;
-	}
-	else {
-		readerPointer->size = size;
 	}
 	/* readerPointer allocation */
 	/* Defensive programming: readerPointer */
 	readerPointer = malloc(sizeof(Buffer));
+	if (!readerPointer) return NULL; // Defensive check
+
+	readerPointer->size = size; // Now it's safe to assign
+	readerPointer->factor = factor; // Don't forget to save the factor
 	/* content allocation */
 	word content = malloc(size);
+	if (!content) {
+		free(readerPointer);
+		return HOLLOW;
+	}
 	/* Defensive programming: content */
 	if (readerPointer!=NULL && content!=NULL) {
 		readerPointer->content = content;
@@ -93,15 +95,14 @@ BufferPointer readerCreate(digit size, rad factor) {
 	}
 	
 	/* Initialize errors */
-	digit numReaderErrors = 0;
-	if (readerPointer != NULL && numReaderErrors != NULL) {
-		readerPointer->numReaderErrors = numReaderErrors;
+	if (readerPointer) {
+		readerPointer->numReaderErrors = 0; // 0 at the start
 	}
 	/* Update the properties */
 	readerPointer->position.wrte = 0;
-	readerPointer->position.read = sizeof(char); // The offset is the size of a single char
+	readerPointer->position.read = 0; // The offset is the size of a single char
 	readerPointer->position.mark = 0;
-	numReaderErrors = 0;
+	readerPointer->numReaderErrors = 0;
 	/* Initialize flags */
 	readerPointer->flags.isEmpty = TRUE;
 	readerPointer->flags.isFull = FALSE;
@@ -137,11 +138,13 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	/* Check for invalid ASCII (0-127) */
 	if ((unsigned char)ch < 0 || (unsigned char)ch > 127) {
 		readerPointer->numReaderErrors++;
-		return readerPointer; // Return without adding the bad char
+		if (!readerIsFull(readerPointer)) {
+			readerPointer->position.wrte++;
+		}
 	}
 
 	/* Check if full */
-	if (readerPointer->position.wrte >= readerPointer->size) {
+	if (readerIsFull(readerPointer)) {
 
 		/* Attempt to resize */
 		digit newSize = readerPointer->size + (digit)readerPointer->factor;
@@ -244,13 +247,10 @@ duple readerFree(BufferPointer const readerPointer) {
 duple readerIsFull(BufferPointer const readerPointer) {
 	/* Defensive programming */
 	if (readerPointer) {
-		if (readerPointer->flags.isFull == TRUE) {
-			printf("The reader is full.");
+		if (readerPointer->position.read == readerPointer->size) {
+			readerPointer->flags.isFull = TRUE;
+			return TRUE;
 		}
-		else {
-			printf("The reader is not full.");
-		}
-		return TRUE;
 	}
 	
 	return FALSE;
@@ -324,22 +324,19 @@ duple readerSetMark(BufferPointer const readerPointer, digit mark) {
 *************************************************************
 */
 digit readerPrint(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming (including invalid chars) */
 	int numCharsRead = 0;
-	/* Print the buffer content */
-	if (readerPointer) {
+	if (readerPointer && readerPointer->content) {
+		// Start from the beginning
 		readerPointer->position.read = 0;
-		while (readerPointer->position.read != "\0") {
-			int i = readerPointer->position.read;
-			if ((digit)readerPointer->position.read >= 0 &&
-				(digit)readerPointer->position.read <= 127) {
-				printf("%c", readerPointer->content[i]);
-			}
-				
+		// Loop until we reach the end of what was actually written
+		while (readerPointer->position.read < readerPointer->position.wrte) {
+			digit i = readerPointer->position.read;
+			printf("%c", readerPointer->content[i]);
+			readerPointer->position.read++; // MUST increment this
+			numCharsRead++;
 		}
 	}
-	
-	return 0;
+	return numCharsRead; // Return the actual count so displayBuffer knows it's not empty
 }
 
 /*
@@ -422,8 +419,10 @@ duple readerRecover(BufferPointer const readerPointer) {
 *************************************************************
 */
 duple readerRetract(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
-	/* TO_DO: Retract (return 1 pos read) */
+	if (readerPointer && readerPointer->position.read > 0) {
+		readerPointer->position.read--;
+		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -630,12 +629,13 @@ digit readerGetSize(BufferPointer const readerPointer) {
 #define FLAGS_
 #undef FLAGS_
 #ifndef FLAGS_
-Flag readerPrintFlags(BufferPointer const readerPointer) {
-	Flag emptyFlags = { 0,0,0,0 };
-	/* Defensive programming */
-	if (!readerPointer) return emptyFlags; // All 0
-	/* Return flags */
-	return readerPointer->flags;
+empty readerPrintFlags(BufferPointer const readerPointer) {
+	if (!readerPointer) return;
+	printf("  isEmpty:%d, isFull:%d, isRead:%d, isMoved:%d\n",
+		readerPointer->flags.isEmpty,
+		readerPointer->flags.isFull,
+		readerPointer->flags.isRead,
+		readerPointer->flags.isMoved);
 }
 #else
 #define bGetFlags(readerPointer) ((readerPointer)?(readerPointer->flags):(RT_FAIL_1))
@@ -663,7 +663,7 @@ empty readerPrintStat(BufferPointer const readerPointer) {
 	for (int i = 0; i < NCHAR; i++) {
 		/* Only print if the character actually appeared in the file */
 		if (readerPointer->histogram[i] > 0) {
-			printf("B[%.3d]=%d, ", i, readerPointer->histogram[i]);
+			printf("B[%c]=%d, ", i, readerPointer->histogram[i]);
 		}
 	}
 	printf("\n");
@@ -709,10 +709,14 @@ digit readerNumErrors(BufferPointer const readerPointer) {
 */
 
 digit readerChecksum(BufferPointer readerPointer) {
-	/* TO_DO: Defensive programming */
-	if (readerPointer) {
-		return readerPointer->checkSum;
+	if (!readerPointer || !readerPointer->content) return 0;
+
+	digit sum = 0;
+	// Sum only the characters actually written to the buffer
+	for (digit i = 0; i < readerPointer->position.wrte; i++) {
+		sum += (unsigned char)readerPointer->content[i];
 	}
-	/* TO_DO: Return the checksum (given by the content) */
-	return 0;
+
+	// 4 bits
+	return sum;
 }

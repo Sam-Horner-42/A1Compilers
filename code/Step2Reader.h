@@ -126,7 +126,7 @@ digit 	readerGetPosRead(BufferPointer const);
 digit	readerGetPosWrte(BufferPointer const);
 digit	readerGetPosMark(BufferPointer const);
 digit	readerGetSize(BufferPointer const);
-Flag	readerPrintFlags(BufferPointer const);
+empty	readerPrintFlags(BufferPointer const);
 empty	readerPrintStat(BufferPointer const);
 digit	readerNumErrors(BufferPointer const);
 
