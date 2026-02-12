@@ -56,7 +56,7 @@
 #define READER_DEFAULT_FACTOR	0.5f		/* default factor */
 
 /* TO_DO: Add your bit-masks constant definitions here */
-/*
+
 // BITS                             (    76543210)
 #define READER_DEFAULT_FLAG 0x00 	// (0b00000000) = (0x00)_16 = (000)_10
 // TO_DO: BIT 3: END = End of buffer flag
@@ -67,7 +67,6 @@
 #define READER_SET_FLAG_FUL 0x02	// (0b00000010) = (0x02)_16 = (002)_10
 // TO_DO: BIT 0: FUL = Buffer full flag
 #define READER_SET_FLAG_EMP 0x01	// (0b00000001) = (0x01)_16 = (001)_10
-*/
 
 #define NCHAR				128			/* Chars from 0 to 127 */
 
@@ -79,7 +78,7 @@
 
 /* Offset declaration */
 typedef struct position {
-	digit wrte;					/* the offset to the add chars (in chars) */
+	digit wrte;					/* the offset to the add chars (in chars) must never be larger than size */
 	digit read;					/* the offset to the get a char position (in chars) */
 	digit mark;					/* the offset to the mark position (in chars) */
 } Position;
@@ -127,7 +126,7 @@ digit 	readerGetPosRead(BufferPointer const);
 digit	readerGetPosWrte(BufferPointer const);
 digit	readerGetPosMark(BufferPointer const);
 digit	readerGetSize(BufferPointer const);
-empty	readerPrintFlags(BufferPointer const);
+Flag	readerPrintFlags(BufferPointer const);
 empty	readerPrintStat(BufferPointer const);
 digit	readerNumErrors(BufferPointer const);
 

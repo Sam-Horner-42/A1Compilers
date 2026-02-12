@@ -65,7 +65,7 @@
  * -------------------------------------------------------------
  */
 empty displayBuffer(BufferPointer ptr_Buffer);
-bigdigit getFileSize(wordfname);
+bigdigit getFileSize(word fname);
 digit isNumber(const word ns);
 empty startReader(word, word, digit, rad);
 

@@ -85,7 +85,7 @@ digit main1Coder(digit argc, word* argv) {
 		}
 		printf("Operation '%s' completed successfully.\n", operation);
 		// Call the other operation in memory, to print the output
-		digit size = getSizeOfFile(outputFileName);
+		//digit size = getSizeOfFile(outputFileName);
 		word output;
 		if (atoi(operation) == CYPHER)
 			output = vigenereMem(inputFileName, key, CYPHER);
