@@ -214,10 +214,9 @@ empty displayBuffer(BufferPointer ptr_Buffer) {
 	printf("The value of the flags:\n");
 	readerPrintFlags(ptr_Buffer);
 	printf("Checksum: %d\n", readerChecksum(ptr_Buffer));
-	printf("%s", "Reader statistics : \n");
+	printf("Reader statistics: \n");
 	readerPrintStat(ptr_Buffer);
-	printf("Number of errors: %d\n",
-		readerNumErrors(ptr_Buffer));
+	printf("Number of errors: %d\n", readerNumErrors(ptr_Buffer));
 	printf("\nPrinting buffer contents:\n\n");
 	readerRecover(ptr_Buffer);
 	if (!readerPrint(ptr_Buffer))

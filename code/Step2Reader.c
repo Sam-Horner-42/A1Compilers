@@ -1,4 +1,4 @@
-/*
+﻿/*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Summer, 2025
@@ -10,7 +10,7 @@
 ***********************************************************
 * File name: Step2Reader.c
 * Compiler: MS Visual Studio 2022
-* Course: CST 8152 � Compilers, Lab Section: [011, 012, 013]
+* Course: CST 8152 – Compilers, Lab Section: [011, 012, 013]
 * Assignment: A12.
 * Date: Jan 01 2025
 * Professor: Paulo Sousa
@@ -98,6 +98,7 @@ BufferPointer readerCreate(digit size, rad factor) {
 	if (readerPointer) {
 		readerPointer->numReaderErrors = 0; // 0 at the start
 	}
+
 	/* Update the properties */
 	readerPointer->position.wrte = 0;
 	readerPointer->position.read = 0; // The offset is the size of a single char
@@ -165,11 +166,22 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	}
 
 	/* Add to content and update histogram */
-	readerPointer->content[readerPointer->position.wrte++] = ch;
-	readerPointer->histogram[(unsigned char)ch]++;
+	readerPointer->content[readerPointer->position.wrte] = ch;
 
-	/* Update empty flag because the buffer is not empty */
-	readerPointer->flags.isEmpty = FALSE;
+	readerPointer->histogram[ch]++;
+
+	// Increment the wrte position
+	readerPointer->position.wrte++;
+
+	// Check if the reader is reader is now full
+	if (readerPointer->position.wrte >= readerPointer->size) {
+		readerPointer->flags.isFull = TRUE;
+	}
+	else {
+		/* Update empty flag because the buffer is not empty */
+		readerPointer->flags.isEmpty = FALSE;
+	}
+		
 
 	return readerPointer;
 }
@@ -331,8 +343,7 @@ digit readerPrint(BufferPointer const readerPointer) {
 		// Loop until we reach the end of what was actually written
 		while (readerPointer->position.read < readerPointer->position.wrte) {
 			digit i = readerPointer->position.read;
-			printf("%c", readerPointer->content[i]);
-			readerPointer->position.read++; // MUST increment this
+			printf("%c", readerGetChar(readerPointer));
 			numCharsRead++;
 		}
 	}
@@ -461,10 +472,6 @@ duple readerRestore(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Char in the getC position.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 character readerGetChar(BufferPointer const readerPointer) {
@@ -501,10 +508,6 @@ character readerGetChar(BufferPointer const readerPointer) {
 *   pos = position to get the pointer
 * Return value:
 *	Position of string char.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 word readerGetContent(BufferPointer const readerPointer, digit pos) {
@@ -523,10 +526,6 @@ word readerGetContent(BufferPointer const readerPointer, digit pos) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	The read position offset.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerGetPosRead(BufferPointer const readerPointer) {
@@ -548,10 +547,6 @@ digit readerGetPosRead(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Write position
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerGetPosWrte(BufferPointer const readerPointer) {
@@ -573,10 +568,6 @@ digit readerGetPosWrte(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Mark position.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerGetPosMark(BufferPointer const readerPointer) {
@@ -597,18 +588,15 @@ digit readerGetPosMark(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Size of buffer.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerGetSize(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
+	/* Defensive programming */
 	if (readerPointer) {
+		/* Return size */
 		return readerPointer->size;
 	}
-	/* TO_DO: Return size */
+	
 	return 0;
 }
 
@@ -620,10 +608,6 @@ digit readerGetSize(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Flags from Buffer.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 #define FLAGS_
@@ -631,7 +615,7 @@ digit readerGetSize(BufferPointer const readerPointer) {
 #ifndef FLAGS_
 empty readerPrintFlags(BufferPointer const readerPointer) {
 	if (!readerPointer) return;
-	printf("  isEmpty:%d, isFull:%d, isRead:%d, isMoved:%d\n",
+	printf("isEmpty:%d, isFull:%d, isRead:%d, isMoved:%d\n",
 		readerPointer->flags.isEmpty,
 		readerPointer->flags.isFull,
 		readerPointer->flags.isRead,
@@ -662,12 +646,41 @@ empty readerPrintStat(BufferPointer const readerPointer) {
 	/* Use the NCHAR constant defined in the header */
 	for (int i = 0; i < NCHAR; i++) {
 		/* Only print if the character actually appeared in the file */
-		if (readerPointer->histogram[i] > 0) {
-			printf("B[%c]=%d, ", i, readerPointer->histogram[i]);
+		if (readerPointer->histogram[i] > 0 && readerPointer->histogram[i] <= 127) {
+			/* Check if 'i' is a printable character (ASCII 32 to 126) */
+			printf("[");
+			printChar(i);
+			printf("]=%d, ", readerPointer->histogram[i]);
 		}
 	}
 	printf("\n");
 	
+}
+
+// [1]
+// Handles weird characters
+void printChar(unsigned char theChar) {
+
+	switch (theChar) {
+
+	case '\n':
+		printf("\\n\n");
+		break;
+	case '\r':
+		printf("\\r");
+		break;
+	case '\t':
+		printf("\\t");
+		break;
+	default:
+		if ((theChar < 0x20) || (theChar > 0x7f)) {
+			printf("\%03o", (unsigned char)theChar);
+		}
+		else {
+			printf("%c", theChar);
+		}
+		break;
+	}
 }
 
 /*
@@ -720,3 +733,9 @@ digit readerChecksum(BufferPointer readerPointer) {
 	// 4 bits
 	return sum;
 }
+
+/*
+References:
+[1]
+“How to print ‘\n’ instead of a newline?,” Stack Overflow. https://stackoverflow.com/questions/1079748/how-to-print-n-instead-of-a-newline
+‌*/

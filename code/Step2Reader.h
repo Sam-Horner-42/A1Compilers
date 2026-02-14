@@ -119,6 +119,7 @@ duple	readerRecover(BufferPointer const);
 duple	readerRetract(BufferPointer const);
 duple	readerRestore(BufferPointer const);
 digit	readerChecksum(BufferPointer const);
+empty	printChar(unsigned char theChar);
 /* Getters */
 character	readerGetChar(BufferPointer const);
 word	readerGetContent(BufferPointer const, digit);
