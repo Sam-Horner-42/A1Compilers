@@ -167,8 +167,8 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 
 	/* Add to content and update histogram */
 	readerPointer->content[readerPointer->position.wrte] = ch;
-
-	readerPointer->histogram[ch]++;
+	if(ch >= ASCII_START && ch <= ASCII_END)
+		readerPointer->histogram[ch]++;
 
 	// Increment the wrte position
 	readerPointer->position.wrte++;
@@ -205,7 +205,7 @@ duple readerClear(BufferPointer const readerPointer) {
 	if (readerPointer) {
 		/* Adjust positions to zero */
 		readerPointer->position.wrte = 0;
-		readerPointer->position.read = sizeof(char); // The offset is the size of a single char
+		readerPointer->position.read = 0; // The offset is the size of a single char
 		readerPointer->position.mark = 0;
 		/* Adjust flags original */
 		readerPointer->flags.isEmpty = TRUE;
@@ -329,23 +329,13 @@ duple readerSetMark(BufferPointer const readerPointer, digit mark) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Number of chars printed.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerPrint(BufferPointer const readerPointer) {
 	int numCharsRead = 0;
-	if (readerPointer && readerPointer->content) {
-		// Start from the beginning
-		readerPointer->position.read = 0;
-		// Loop until we reach the end of what was actually written
-		while (readerPointer->position.read < readerPointer->position.wrte) {
-			digit i = readerPointer->position.read;
-			printf("%c", readerGetChar(readerPointer));
-			numCharsRead++;
-		}
+	if (readerPointer) {
+		numCharsRead = strlen(readerPointer->content); // Length of the content string
+		printf("%s", readerPointer->content); // Print the string in the buffer
 	}
 	return numCharsRead; // Return the actual count so displayBuffer knows it's not empty
 }
