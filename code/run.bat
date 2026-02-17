@@ -3,15 +3,15 @@ cd /d "%~dp0"
 
 echo Compiling...
 :: Ensure you use the same files as your Ubuntu command
-gcc Compilers.c Main1Coder.c Step1Coder.c -o A1Compilers.exe
+gcc *.c -o A1Compilers.exe
 
 echo Encoding...
 :: Added "input/" to the file paths
-A1Compilers.exe 1 1 "input/README.txt" "input/CODED.txt" 
+A2Compilers.exe 1 1 "README.txt" "CODED.txt" 
 
 echo Decoding...
 :: Added "input/" to the file paths
-A1Compilers.exe 1 0 "input/CODED.txt" "input/RESTORED.txt"
+A2Compilers.exe 1 0 "CODED.txt" "RESTORED.txt"
 
 echo Done.
 pause
