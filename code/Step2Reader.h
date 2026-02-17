@@ -18,13 +18,6 @@
 ************************************************************
 */
 
-/*
- *.............................................................................
- * MAIN ADVICE:
- * Please check the "TODO" labels to develop your activity.
- *.............................................................................
- */
-
 #ifndef COMPILERS_H_
 #include "Compilers.h"
 #endif
@@ -55,7 +48,6 @@
 #define READER_DEFAULT_SIZE		100			/* default initial buffer reader capacity */
 #define READER_DEFAULT_FACTOR	0.5f		/* default factor */
 
-/* TO_DO: Add your bit-masks constant definitions here */
 
 // BITS                             (    76543210)
 #define READER_DEFAULT_FLAG 0x00 	// (0b00000000) = (0x00)_16 = (000)_10
@@ -73,8 +65,6 @@
 #define CHARSEOF			(-1)		/* EOF Code for Reader */
 
 /* STRUCTURES DEFINITION: SUFIXED BY LANGUAGE NAME .................................. */
-
-/* TODO: Adjust datatypes */
 
 /* Offset declaration */
 typedef struct position {
@@ -120,6 +110,7 @@ duple	readerRetract(BufferPointer const);
 duple	readerRestore(BufferPointer const);
 digit	readerChecksum(BufferPointer const);
 empty	printChar(unsigned char theChar);
+
 /* Getters */
 character	readerGetChar(BufferPointer const);
 word	readerGetContent(BufferPointer const, digit);

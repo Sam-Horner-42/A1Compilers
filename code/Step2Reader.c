@@ -18,14 +18,6 @@
 ************************************************************
 */
 
-/*
- *.............................................................................
- * MAIN ADVICE:
- * - Please check the "TODO" labels to develop your activity.
- * - Review the functions to use "Defensive Programming".
- *.............................................................................
- */
-
 #include <ctype.h>
 #include <string.h>
 
@@ -55,11 +47,6 @@
 *   mode = operational mode
 * Return value: bPointer (pointer to reader)
 * Algorithm: Allocation of memory according to inicial (default) values.
-* TODO ......................................................
-*	- Adjust datatypes for your LANGUAGE.
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Check flags.
 *************************************************************
 */
 
@@ -123,10 +110,6 @@ BufferPointer readerCreate(digit size, rad factor) {
 *   ch = char to be added
 * Return value:
 *	readerPointer (pointer to Buffer Reader)
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 
