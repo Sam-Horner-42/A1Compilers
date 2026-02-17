@@ -61,7 +61,7 @@ BufferPointer readerCreate(digit size, rad factor) {
 	if (!readerPointer) return NULL; // Defensive check
 
 	readerPointer->size = size; // Now it's safe to assign
-	readerPointer->factor = factor; // Don't forget to save the factor
+	readerPointer->factor = factor; // save the factor
 	/* content allocation */
 	word content = malloc(size);
 	if (!content) {
@@ -131,7 +131,7 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	if (readerIsFull(readerPointer)) {
 
 		/* Attempt to resize */
-		digit newSize = readerPointer->size + (digit)readerPointer->factor;
+		digit newSize = readerPointer->size + readerPointer->factor*100;
 		word tempContent = (word)realloc(readerPointer->content, newSize);
 
 		if (!tempContent) {
@@ -242,7 +242,7 @@ duple readerFree(BufferPointer const readerPointer) {
 duple readerIsFull(BufferPointer const readerPointer) {
 	/* Defensive programming */
 	if (readerPointer) {
-		if (readerPointer->position.read == readerPointer->size) {
+		if (readerPointer->position.wrte == readerPointer->size) {
 			readerPointer->flags.isFull = TRUE;
 			return TRUE;
 		}
