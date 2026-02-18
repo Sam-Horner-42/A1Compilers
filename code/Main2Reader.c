@@ -84,8 +84,8 @@ digit main2Reader(digit argc, word* argv) {
 	/* Create source input buffer */
 	word program = argv[0];
 	word input = argv[2];
-	digit size = 0;
-	rad factor = 0.0f;
+	digit size = READER_DEFAULT_SIZE;
+	rad factor = READER_DEFAULT_FACTOR;
 	/* Missing file name or/and mode parameter */
 	if (argc <= 2) {
 		errorPrint("\nDate: %s  Time: %s", __DATE__, __TIME__);
@@ -118,7 +118,7 @@ empty startReader(word program, word input, digit size, rad factor) {
 	digit loadSize = 0;	/* the size of the file loaded in the buffer */
 
 	/* Create buffer */
-	bufferp = readerCreate(READER_DEFAULT_SIZE, READER_DEFAULT_FACTOR);
+	bufferp = readerCreate(size, factor);
 
 	if (bufferp == NULL) {
 		errorPrint("%s%s", program, ": Cannot allocate buffer - Use: buffer <input>.");
@@ -209,8 +209,8 @@ empty displayBuffer(BufferPointer ptr_Buffer) {
 		readerGetSize(ptr_Buffer));
 	printf("The current size of the buffer is:  %d\n",
 		readerGetPosWrte(ptr_Buffer));
-	printf("The first symbol in the buffer is:  %c\n",
-		readerGetPosWrte(ptr_Buffer) ? *readerGetContent(ptr_Buffer, 0) : ' ');
+	printf("The first symbol in the buffer is:  %s\n",
+		readerGetContent(ptr_Buffer, 0));
 	printf("The value of the flags:\n");
 	readerPrintFlags(ptr_Buffer);
 	printf("Checksum: %d\n", readerChecksum(ptr_Buffer));

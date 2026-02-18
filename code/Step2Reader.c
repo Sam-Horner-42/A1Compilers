@@ -60,7 +60,7 @@ BufferPointer readerCreate(digit size, rad factor) {
 	readerPointer = malloc(sizeof(Buffer));
 	if (!readerPointer) return NULL; // Defensive check
 
-	readerPointer->size = size; // Now it's safe to assign
+	readerPointer->size = size; // Assign size from params or DEFAULT
 	readerPointer->factor = factor; // save the factor
 	/* content allocation */
 	word content = malloc(size);
@@ -114,13 +114,11 @@ BufferPointer readerCreate(digit size, rad factor) {
 */
 
 BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
-	word tempReader = NULL;
-	digit newSize = 0;
 	/* Defensive programming */
 	if (!readerPointer) return HOLLOW;
 
 	/* Check for invalid ASCII (0-127) */
-	if ((unsigned char)ch < 0 || (unsigned char)ch > 127) {
+	if ((digit)ch < ASCII_START || (digit)ch > ASCII_END) {
 		readerPointer->numReaderErrors++;
 		if (!readerIsFull(readerPointer)) {
 			readerPointer->position.wrte++;
@@ -151,7 +149,7 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	/* Add to content and update histogram */
 	readerPointer->content[readerPointer->position.wrte] = ch;
 	if(ch >= ASCII_START && ch <= ASCII_END)
-		readerPointer->histogram[ch]++;
+		readerPointer->histogram[(digit)ch]++;
 
 	// Increment the wrte position
 	readerPointer->position.wrte++;
@@ -487,7 +485,8 @@ word readerGetContent(BufferPointer const readerPointer, digit pos) {
 	/* Defensive programming */
 	if (readerPointer)
 		/* Return content (string) */
-		return readerPointer->content;
+		if(pos >= 0 && pos < readerPointer->position.wrte)
+			return readerPointer->content + pos;
 	return NULL;
 }
 
