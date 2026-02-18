@@ -51,13 +51,13 @@
 
 // BITS                             (    76543210)
 #define READER_DEFAULT_FLAG 0x00 	// (0b00000000) = (0x00)_16 = (000)_10
-// TO_DO: BIT 3: END = End of buffer flag
+// BIT 3: END = End of buffer flag
 #define READER_SET_FLAG_END 0x08	// (0b00001000) = (0x08)_16 = (008)_10
-// TO_DO: BIT 2: REL = Rellocation memory flag
+// BIT 2: REL = Rellocation memory flag
 #define READER_SET_FLAG_REL 0x04	// (0b00000100) = (0x04)_16 = (004)_10
-// TO_DO: BIT 1: EMP = Buffer empty flag
+// BIT 1: EMP = Buffer empty flag
 #define READER_SET_FLAG_FUL 0x02	// (0b00000010) = (0x02)_16 = (002)_10
-// TO_DO: BIT 0: FUL = Buffer full flag
+// BIT 0: FUL = Buffer full flag
 #define READER_SET_FLAG_EMP 0x01	// (0b00000001) = (0x01)_16 = (001)_10
 
 #define NCHAR				128			/* Chars from 0 to 127 */
@@ -109,7 +109,7 @@ duple	readerRecover(BufferPointer const);
 duple	readerRetract(BufferPointer const);
 duple	readerRestore(BufferPointer const);
 digit	readerChecksum(BufferPointer const);
-empty	printChar(unsigned char theChar);
+empty	printChar(byte theChar);
 
 /* Getters */
 character	readerGetChar(BufferPointer const);

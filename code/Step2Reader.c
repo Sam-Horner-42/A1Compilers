@@ -92,11 +92,11 @@ BufferPointer readerCreate(digit size, rad factor) {
 	readerPointer->position.mark = 0;
 	readerPointer->numReaderErrors = 0;
 	/* Initialize flags */
-	readerPointer->flags.isEmpty = TRUE;
+	readerPointer->flags.isEmpty = TRUE; /* The created flag is signalized as EMP */
 	readerPointer->flags.isFull = FALSE;
 	readerPointer->flags.isMoved = FALSE;
 	readerPointer->flags.isRead = FALSE;
-	/* TO_DO: The created flag must be signalized as EMP */
+	
 	return readerPointer;
 }
 
@@ -118,7 +118,7 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	if (!readerPointer) return HOLLOW;
 
 	/* Check for invalid ASCII (0-127) */
-	if ((digit)ch < ASCII_START || (digit)ch > ASCII_END) {
+	if ((digit)ch < 0 || (digit)ch >= NCHAR-1) {
 		readerPointer->numReaderErrors++;
 		if (!readerIsFull(readerPointer)) {
 			readerPointer->position.wrte++;
@@ -148,7 +148,7 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 
 	/* Add to content and update histogram */
 	readerPointer->content[readerPointer->position.wrte] = ch;
-	if(ch >= ASCII_START && ch <= ASCII_END)
+	if((digit)ch >= 0 && (digit)ch < NCHAR-1)
 		readerPointer->histogram[(digit)ch]++;
 
 	// Increment the wrte position
@@ -175,10 +175,6 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerClear(BufferPointer const readerPointer) {
@@ -207,14 +203,10 @@ duple readerClear(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerFree(BufferPointer const readerPointer) {
-	/* TO_DO: Defensive programming */
+	/* Defensive programming */
 	if (readerPointer) {
 		free(readerPointer);
 		return TRUE;
@@ -231,10 +223,6 @@ duple readerFree(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerIsFull(BufferPointer const readerPointer) {
@@ -258,10 +246,6 @@ duple readerIsFull(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerIsEmpty(BufferPointer const readerPointer) {
@@ -286,10 +270,6 @@ duple readerIsEmpty(BufferPointer const readerPointer) {
 *   mark = mark position for char
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerSetMark(BufferPointer const readerPointer, digit mark) {
@@ -331,10 +311,6 @@ digit readerPrint(BufferPointer const readerPointer) {
 *   fileDescriptor = pointer to file descriptor
 * Return value:
 *	Number of chars read and put in buffer.
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerLoad(BufferPointer const readerPointer, word fileName) {
@@ -349,7 +325,7 @@ digit readerLoad(BufferPointer const readerPointer, word fileName) {
 
 	digit count = 0;
 	/* Loop through the decrypted string and add to buffer */
-	for (int i = 0; decodedContent[i] != '\0'; i++) {
+	for (int i = 0; decodedContent[i] != READER_TERMINATOR; i++) {
 		if (readerAddChar(readerPointer, decodedContent[i])) {
 			count++;
 		}
@@ -368,10 +344,6 @@ digit readerLoad(BufferPointer const readerPointer, word fileName) {
 *   readerPointer = pointer to Buffer Reader
 * Return value
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerRecover(BufferPointer const readerPointer) {
@@ -394,10 +366,6 @@ duple readerRecover(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerRetract(BufferPointer const readerPointer) {
@@ -417,10 +385,6 @@ duple readerRetract(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Boolean value about operation success
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 duple readerRestore(BufferPointer const readerPointer) {
@@ -448,13 +412,13 @@ duple readerRestore(BufferPointer const readerPointer) {
 character readerGetChar(BufferPointer const readerPointer) {
 	/* Defensive programming */
 	if (!readerPointer || !readerPointer->content) {
-		return '\0';
+		return READER_TERMINATOR;
 	}
 
 	/* Check if we have reached the end of the written data */
 	if (readerPointer->position.read == readerPointer->position.wrte) {
 		readerPointer->flags.isRead = TRUE; // Signal end of buffer
-		return '\0';
+		return READER_TERMINATOR;
 	}
 
 	/* Reset end-of-buffer flag just in case */
@@ -604,9 +568,6 @@ empty readerPrintFlags(BufferPointer const readerPointer) {
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
 * Return value: (Void)
-* TO_DO:
-*   - Use defensive programming
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 empty readerPrintStat(BufferPointer const readerPointer) {
@@ -631,12 +592,12 @@ empty readerPrintStat(BufferPointer const readerPointer) {
 
 // [1]
 // Handles weird characters
-void printChar(unsigned char theChar) {
+void printChar(byte theChar) {
 
 	switch (theChar) {
 
 	case '\n':
-		printf("\\n\n");
+		printf("\\n");
 		break;
 	case '\r':
 		printf("\\r");
@@ -663,9 +624,6 @@ void printChar(unsigned char theChar) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	Number of errors.
-* TO_DO:
-*   - Use defensive programming
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 digit readerNumErrors(BufferPointer const readerPointer) {
@@ -686,10 +644,6 @@ digit readerNumErrors(BufferPointer const readerPointer) {
 *   readerPointer = pointer to Buffer Reader
 * Return value:
 *	the value of bytes in the reader
-* TO_DO:
-*   - Use defensive programming
-*	- Check boundary conditions
-*	- Adjust for your LANGUAGE.
 *************************************************************
 */
 

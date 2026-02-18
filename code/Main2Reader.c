@@ -209,8 +209,8 @@ empty displayBuffer(BufferPointer ptr_Buffer) {
 		readerGetSize(ptr_Buffer));
 	printf("The current size of the buffer is:  %d\n",
 		readerGetPosWrte(ptr_Buffer));
-	printf("The first symbol in the buffer is:  %s\n",
-		readerGetContent(ptr_Buffer, 0));
+	printf("The first symbol in the buffer is:  %c\n",
+		ptr_Buffer->content[0]);
 	printf("The value of the flags:\n");
 	readerPrintFlags(ptr_Buffer);
 	printf("Checksum: %d\n", readerChecksum(ptr_Buffer));
