@@ -46,59 +46,18 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
         return;
     }
 
-    // Open neccessary input and output files
-    FILE* inputFile = fopen(inputFileName, "r");
-
-    // Check to make sure the files were found and opened correctly
-    if (inputFile == HOLLOW) {
-        fprintf(stderr, "Not able to open input file: %s\n", inputFileName);
-        return;
-    }
 
     FILE* outputFile = fopen(outputFileName, "w");
     if (outputFile == HOLLOW) {
         fprintf(stderr, "Not able to open output file: %s\n", outputFileName);
-        fclose(inputFile); // Close input file if we can't find/open output
+        //fclose(outputFile); // Close input file if we can't find/open output
         return;
     }
 
-    int keyLen = strlen(key); // Length of the key used
-    // Check to make sure the key inputted is not empty
-    if (strlen(key) == 0) {
-        fprintf(stderr, "Key cannot be empty.\n");
-        fclose(inputFile);
-        fclose(outputFile);
-        return;
-    }
-    int keyIndex = 0; // The current index to apply to
-    int currentChar;  // Incoming character from file stored as an int to avoid truncation
-
-    while ((currentChar = fgetc(inputFile)) != EOF) {
-
-        // Only modify visible ASCII characters
-        if (currentChar >= ASCII_START && currentChar <= ASCII_END) {
-
-            int shift = key[keyIndex % keyLen] - ASCII_START;
-
-            if (encode == CYPHER) {
-                // Forward shift
-                currentChar = ASCII_START +
-                    ((currentChar - ASCII_START) + shift) % ASCII_RANGE;
-            }
-            else {
-                // Backward shift (decode)
-                currentChar = ASCII_START +
-                    ((currentChar - ASCII_START) - shift + ASCII_RANGE) % ASCII_RANGE;
-            }
-
-            keyIndex++;
-        }
-
-        fputc(currentChar, outputFile); // Put the current character into the file
-    }
-
-    // Close files
-    fclose(inputFile);
+    word output = vigenereMem(inputFileName, key, encode);
+    if(output)
+        fputs(output, outputFile); // Put the current character into the file
+    
     fclose(outputFile);
 }
 
