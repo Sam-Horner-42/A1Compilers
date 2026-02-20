@@ -47,7 +47,7 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     }
 
 
-    FILE* outputFile = fopen(outputFileName, "w");
+    FILE* outputFile = fopen(outputFileName, "wb");
     if (outputFile == HOLLOW) {
         fprintf(stderr, "Not able to open output file: %s\n", outputFileName);
         //fclose(outputFile); // Close input file if we can't find/open output
@@ -55,9 +55,16 @@ empty vigenereFile(const word inputFileName, const word outputFileName, const wo
     }
 
     word output = vigenereMem(inputFileName, key, encode);
-    if(output)
-        fputs(output, outputFile); // Put the current character into the file
-    
+    if (output) {
+        // If vigenereMem is correct, this will write only the valid characters
+        digit actualSize = (digit)strlen(output);
+
+        // Use fwrite for precise control over the output stream
+        fwrite(output, sizeof(character), actualSize, outputFile);
+
+        // Free the memory allocated by vigenereMem to avoid leaks
+        free(output);
+    }
     fclose(outputFile);
 }
 
@@ -86,7 +93,6 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
     word output = (word)malloc(size + 1);   // +1 for null terminator char
     // Check if the allocation failed
     if (output == HOLLOW) {
-        free(output);
         fprintf(stderr, "Memory allocation failed.\n");
         return HOLLOW;
     }
@@ -141,12 +147,13 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
             }
 
             output[i] = currentChar; // Append the char to the buffer
-            keyIndex++; // Increment the key value
+            
         } else if (currentChar < 0 || currentChar > ASCII_END) {
             fprintf(stderr, "Invalid ASCII value detected in file.\n");
             free(output);
             return HOLLOW;
         }
+        keyIndex++; // Increment the key value
     }
 
     // Return buffer
@@ -168,7 +175,7 @@ digit getSizeOfFile(const word fileName) {
 	digit size = 0; // The size of the file
 	FILE* inputFile; // The file coming in
 
-	inputFile = fopen(fileName, "r");
+	inputFile = fopen(fileName, "rb");
 	// [1]
 	// Print some text if the file does not exist
 	if (inputFile == HOLLOW) {
