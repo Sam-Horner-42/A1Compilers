@@ -138,6 +138,7 @@ empty startReader(word program, word input, digit size, rad factor) {
 		printf("The input file %s %s\n", input, "has not been completely loaded.");
 		printf("Current size of buffer: %d.\n", readerGetSize(bufferp));
 		printf("Input file size: %ld\n", getFileSize(input));
+		return;
 	}
 
 	/* Finishes the buffer: add end of file character (EOF) to the buffer display again */

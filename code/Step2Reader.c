@@ -46,7 +46,7 @@
 *   increment = increment factor
 *   mode = operational mode
 * Return value: bPointer (pointer to reader)
-* Algorithm: Allocation of memory according to inicial (default) values.
+* Algorithm: Allocation of memory according to initial (default) values.
 *************************************************************
 */
 
@@ -54,6 +54,10 @@ BufferPointer readerCreate(digit size, rad factor) {
 	BufferPointer readerPointer = NULL;
 	if (!size || size < 1) {
 		size = READER_DEFAULT_SIZE;
+	}
+
+	if (!factor || factor < 0) {
+		factor = READER_DEFAULT_FACTOR;
 	}
 	/* readerPointer allocation */
 	/* Defensive programming: readerPointer */
@@ -91,11 +95,15 @@ BufferPointer readerCreate(digit size, rad factor) {
 	readerPointer->position.read = 0; // The offset is the size of a single char
 	readerPointer->position.mark = 0;
 	readerPointer->numReaderErrors = 0;
-	/* Initialize flags */
-	readerPointer->flags.isEmpty = TRUE; /* The created flag is signalized as EMP */
-	readerPointer->flags.isFull = FALSE;
-	readerPointer->flags.isMoved = FALSE;
-	readerPointer->flags.isRead = FALSE;
+
+	/* Assign all the flags to default at creation */
+	readerPointer->flags.isEmpty = READER_DEFAULT_FLAG;
+	readerPointer->flags.isFull = READER_DEFAULT_FLAG;
+	readerPointer->flags.isMoved = READER_DEFAULT_FLAG;
+	readerPointer->flags.isRead = READER_DEFAULT_FLAG;
+
+	/* Buffer is empty by default using BITWISE */
+	readerPointer->flags.isEmpty |= READER_SET_FLAG_EMP;
 	
 	return readerPointer;
 }
@@ -116,13 +124,12 @@ BufferPointer readerCreate(digit size, rad factor) {
 BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	/* Defensive programming */
 	if (!readerPointer) return HOLLOW;
+	if (!ch) return HOLLOW;
 
 	/* Check for invalid ASCII (0-127) */
 	if ((digit)ch < 0 || (digit)ch >= NCHAR-1) {
 		readerPointer->numReaderErrors++;
-		if (!readerIsFull(readerPointer)) {
-			readerPointer->position.wrte++;
-		}
+		return HOLLOW;
 	}
 
 	/* Check if full */
@@ -130,20 +137,20 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 
 		/* Attempt to resize */
 		digit newSize = readerPointer->size + readerPointer->factor*100;
-		word tempContent = (word)realloc(readerPointer->content, newSize);
+		word tempContent = (word)realloc(readerGetContent(readerPointer, 0), newSize);
 
+		// Temp content could not be initialized
 		if (!tempContent) {
-			readerPointer->numReaderErrors++;
 			return HOLLOW;
 		}
 
 		/* Update flags and pointers */
-		if (tempContent != readerPointer->content)
-			readerPointer->flags.isMoved = TRUE;
+		if (tempContent != readerGetContent(readerPointer, 0))
+			readerPointer->flags.isMoved |= READER_SET_FLAG_REL;
 
 		readerPointer->content = tempContent;
 		readerPointer->size = newSize;
-		readerPointer->flags.isFull = FALSE; // No longer full after resize
+		readerPointer->flags.isFull &= ~READER_SET_FLAG_FUL; // No longer full after resize
 	}
 
 	/* Add to content and update histogram */
@@ -155,12 +162,12 @@ BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	readerPointer->position.wrte++;
 
 	// Check if the reader is reader is now full
-	if (readerPointer->position.wrte >= readerPointer->size) {
-		readerPointer->flags.isFull = TRUE;
+	if (readerIsFull(readerPointer)) {
+		readerPointer->flags.isFull |= READER_SET_FLAG_FUL;
 	}
-	else {
+	else if(readerIsEmpty(readerPointer)) {
 		/* Update empty flag because the buffer is not empty */
-		readerPointer->flags.isEmpty = FALSE;
+		readerPointer->flags.isEmpty &= ~READER_SET_FLAG_EMP;
 	}
 		
 
@@ -184,11 +191,16 @@ duple readerClear(BufferPointer const readerPointer) {
 		readerPointer->position.wrte = 0;
 		readerPointer->position.read = 0; // The offset is the size of a single char
 		readerPointer->position.mark = 0;
-		/* Adjust flags original */
-		readerPointer->flags.isEmpty = TRUE;
-		readerPointer->flags.isFull = FALSE;
-		readerPointer->flags.isMoved = FALSE;
-		readerPointer->flags.isRead = FALSE;
+
+		/* Adjust flags original using masks */
+		readerPointer->flags.isEmpty = READER_DEFAULT_FLAG;
+		readerPointer->flags.isFull = READER_DEFAULT_FLAG;
+		readerPointer->flags.isMoved = READER_DEFAULT_FLAG;
+		readerPointer->flags.isRead = READER_DEFAULT_FLAG;
+		
+		
+		/* Reader is empty again */
+		readerPointer->flags.isEmpty |= READER_SET_FLAG_EMP;
 		return TRUE;
 	}
 	
@@ -228,8 +240,8 @@ duple readerFree(BufferPointer const readerPointer) {
 duple readerIsFull(BufferPointer const readerPointer) {
 	/* Defensive programming */
 	if (readerPointer) {
-		if (readerPointer->position.wrte == readerPointer->size) {
-			readerPointer->flags.isFull = TRUE;
+		if (readerGetPosWrte(readerPointer) == readerGetSize(readerPointer)) {
+			readerPointer->flags.isFull |= READER_SET_FLAG_FUL;
 			return TRUE;
 		}
 	}
@@ -255,7 +267,7 @@ duple readerIsEmpty(BufferPointer const readerPointer) {
 		return FALSE;
 	}
 	/* Check flag if buffer is EMP */
-	if (readerPointer->flags.isEmpty) {
+	if (readerPointer->flags.isEmpty && READER_SET_FLAG_EMP) {
 		return TRUE;
 	}
 	return FALSE;
@@ -417,17 +429,17 @@ character readerGetChar(BufferPointer const readerPointer) {
 
 	/* Check if we have reached the end of the written data */
 	if (readerPointer->position.read == readerPointer->position.wrte) {
-		readerPointer->flags.isRead = TRUE; // Signal end of buffer
+		readerPointer->flags.isRead |= READER_SET_FLAG_END; // Signal end of buffer
 		return READER_TERMINATOR;
 	}
-
+	
 	/* Reset end-of-buffer flag just in case */
-	readerPointer->flags.isRead = FALSE;
+	readerPointer->flags.isRead &= ~READER_SET_FLAG_END;
 
-	/* 1. Get the character at the current read position */
+	/* Get the character at the current read position */
 	character ch = readerPointer->content[readerPointer->position.read];
 
-	/* 2. Update the read position for the next call */
+	/* Update the read position for the next call */
 	readerPointer->position.read++;
 
 	return ch;
@@ -567,7 +579,7 @@ empty readerPrintFlags(BufferPointer const readerPointer) {
 * Purpose: Shows the char statistic.
 * Parameters:
 *   readerPointer = pointer to Buffer Reader
-* Return value: (Void)
+* Return value: empty (Void)
 *************************************************************
 */
 empty readerPrintStat(BufferPointer const readerPointer) {
@@ -591,8 +603,16 @@ empty readerPrintStat(BufferPointer const readerPointer) {
 }
 
 // [1]
-// Handles weird characters
-void printChar(byte theChar) {
+/*
+***********************************************************
+* Function name: printChar
+* Purpose: Prints all chars within 0:127.
+* Parameters:
+*   theChar = a single character value
+* Return value: empty (Void)
+*************************************************************
+*/
+empty printChar(byte theChar) {
 
 	switch (theChar) {
 

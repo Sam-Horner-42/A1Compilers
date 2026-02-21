@@ -148,11 +148,7 @@ word vigenereMem(const word inputFileName, const word key, digit encode) {
 
             output[i] = currentChar; // Append the char to the buffer
             
-        } else if (currentChar < 0 || currentChar > ASCII_END) {
-            fprintf(stderr, "Invalid ASCII value detected in file.\n");
-            free(output);
-            return HOLLOW;
-        }
+        } 
         keyIndex++; // Increment the key value
     }
 
