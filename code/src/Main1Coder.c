@@ -28,11 +28,11 @@
 #include <ctype.h>
 
 #ifndef COMPILERS_H_
-#include "Compilers.h"
+#include "../includes/Compilers.h"
 #endif
 
 #ifndef CODER_H_
-#include "Step1Coder.h"
+#include "../includes/Step1Coder.h"
 #endif
 
  /* Check for ANSI C compliancy */

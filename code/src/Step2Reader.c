@@ -22,15 +22,15 @@
 #include <string.h>
 
 #ifndef COMPILERS_H_
-#include "Compilers.h"
+#include "../includes/Compilers.h"
 #endif
 
 #ifndef CODER_H_
-#include "Step1Coder.h"
+#include "../includes/Step1Coder.h"
 #endif
 
 #ifndef READER_H_
-#include "Step2Reader.h"
+#include "../includes/Step2Reader.h"
 #endif
 
 /*
@@ -460,9 +460,10 @@ character readerGetChar(BufferPointer const readerPointer) {
 word readerGetContent(BufferPointer const readerPointer, digit pos) {
 	/* Defensive programming */
 	if (readerPointer)
-		/* Return content (string) */
-		if(pos >= 0 && pos < readerPointer->position.wrte)
+		if (pos >= 0 && pos < readerPointer->position.wrte) {
+			readerPointer->content[readerPointer->position.wrte] = '\0'; // Null terminate
 			return readerPointer->content + pos;
+		}
 	return NULL;
 }
 

@@ -20,10 +20,10 @@ project ("Compilers")
 
 # Add source to this project's executable.
 add_executable (Compilers 
-	"Compilers.h"		"Compilers.c"
-	"Step1Coder.h"		"Step1Coder.c"	
-	"Step2Reader.h" "Step2Reader.c"
-	"Main2Reader.c"	"Main1Coder.c"
+	"includes/Compilers.h"		"src/Compilers.c"
+	"includes/Step1Coder.h"		"src/Step1Coder.c"	
+	"includes/Step2Reader.h" "src/Step2Reader.c"
+	"src/Main2Reader.c"	"src/Main1Coder.c"
  )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
