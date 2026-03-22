@@ -1,0 +1,51 @@
+# Stelline Language Example Execution #
+# Samuel Horner 040935005 #
+# Function identifiers are appended with : #
+
+
+word name = "Sam Horner";
+digit pi = 3.14;
+digit function:(digit param, boolean isParam) {
+	digit localParam;
+	if (isParam){
+		return param;
+	} else {
+		return param / 2;
+		}
+	return 0;
+}
+
+empty otherFunction:(){
+	print("Hello World");
+}
+
+duple comparisonFunction:(digit val1, digit val2){
+	if (val1 > val2){
+		return TRUE;
+	} else if (val1 < val2){
+		return FALSE;
+	} else if (val2 <= val1){
+		return TRUE;
+	} else if (val1 >= val2){
+		return FALSE;
+	} else if (val1 != val2){
+		return TRUE;
+	} else if (val2 == val1){
+		return FALSE;
+	} else if(val2 != val1 and val2 == val1) {
+		return FALSE;
+	}
+
+}
+
+bigdigit mathOperations:(){
+	print(1 + 2);
+	print(4 / 2);
+	print(2 * 2);
+	print(4 - 2);
+	print(5^2);
+	print(10%2);
+}
+
+
+

@@ -1,0 +1,6 @@
+
+digit myFunction:(digit param1, duple param2){
+	digit myVal = param1;
+
+	return digit;
+}

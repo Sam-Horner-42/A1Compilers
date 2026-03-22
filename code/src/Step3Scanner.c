@@ -1,34 +1,10 @@
 /*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
-* Code version: Fall, 2025
-* Author: TO_DO
+* Code version: Winter, 2026
+* Author: Sam Horner 040935005
 * Professors: Paulo Sousa
 ************************************************************
-#
-# ECHO "=---------------------------------------="
-# ECHO "|  COMPILERS - ALGONQUIN COLLEGE (F24)  |"
-# ECHO "=---------------------------------------="
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@           %&@@@@@@@@@@@     @@    ”
-# ECHO "    @@       @%% (@@@@@@@@@  @     @@    ”
-# ECHO "    @@      @& @   @ @       @     @@    ”
-# ECHO "    @@     @ @ %  / /   @@@@@@     @@    ”
-# ECHO "    @@      & @ @  @@              @@    ”
-# ECHO "    @@       @/ @*@ @ @   @        @@    ”
-# ECHO "    @@           @@@@  @@ @ @      @@    ”
-# ECHO "    @@            /@@    @@@ @     @@    ”
-# ECHO "    @@     @      / /     @@ @     @@    ”
-# ECHO "    @@     @ @@   /@/   @@@ @      @@    ”
-# ECHO "    @@     @@@@@@@@@@@@@@@         @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@         S O F I A           @@    ”
-# ECHO "    @@                             @@    ”
-# ECHO "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# ECHO "                                         "
-# ECHO "[READER SCRIPT .........................]"
-# ECHO "                                         "
 */
 
 /*
@@ -37,19 +13,12 @@
 * Compiler: MS Visual Studio 2022
 * Course: CST 8152 – Compilers, Lab Section: [011, 012]
 * Assignment: A22, A32.
-* Date: May 01 2024
+* Date: March 21 2026
 * Purpose: This file contains all functionalities from Scanner.
 * Function list: (...).
 ************************************************************
 */
 
-/* TO_DO: Adjust the function header */
-
- /* The #define _CRT_SECURE_NO_WARNINGS should be used in MS Visual Studio projects
-  * to suppress the warnings about using "unsafe" functions like fopen()
-  * and standard sting library functions defined in string.h.
-  * The define does not have any effect in Borland compiler projects.
-  */
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>   /* standard input / output */
@@ -76,23 +45,11 @@
 #include "../includes/Step3Scanner.h"
 #endif
 
-/*
-----------------------------------------------------------------
-TO_DO: Global vars definitions
-----------------------------------------------------------------
-*/
-
 /* Global objects - variables */
 /* This buffer is used as a repository for string literals. */
 extern BufferPointer stringLiteralTable;	/* String literal table */
 digit line;								/* Current line number of the source code */
 extern digit errorNumber;				/* Defined in platy_st.c - run-time error number */
-
-extern digit stateType[NUM_STATES];
-extern word keywordTable[KWT_SIZE];
-
-extern PTR_ACCFUN finalStateTable[NUM_STATES];
-extern digit transitionTable[NUM_STATES][CHAR_CLASSES];
 
 /* Local(file) global objects - variables */
 static BufferPointer lexemeBuffer;			/* Pointer to temporary lexeme buffer */
@@ -101,19 +58,134 @@ static BufferPointer sourceBuffer;			/* Pointer to input source buffer */
 digit scannerNumErrors = 0;
 ScannerData scData;
 
+/* Keywords */
+word tokenStrTable[NUM_TOKENS] = {
+	"ERR_T",
+	"MNID_T",
+	"INL_T",
+	"STR_T",
+	"LPR_T",
+	"RPR_T",
+	"LBR_T",
+	"RBR_T",
+	"KW_T",
+	"EOS_T",
+	"RTE_T",
+	"SEOF_T",
+	"CMT_T",
+	"ART_OP_T",
+	"REL_OP_T",
+	"LOG_OP_T",
+	"VID_T",
+	"COL_T",
+	"ASN_T",
+	"CMA_T",
+};
+/* Transition table - type of states defined in separate table */
+digit transitionTable[NUM_STATES][CHAR_CLASSES] = {
+	/*   [A-z],	[0-9],    _,    :,    \',   SEOF,    #, other
+		 L(0),  D(1),   U(2),  M(3),  Q(4), E(5), C(6),  O(7) */
+	/* S0  */ { 1,  10, ESNR, ESNR,   4, ESWR,    6,   14,   12,   14}, // NOAS
+	/* S1 */ { 1,    1,    1,    2,    3,    3,    3,    3,    3,    3}, // NOAS (ID chars)
+	/* S2 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (MNID)
+	/* S3 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (KEY)
+	/* S4 */ { 4,    4,    4,    4,    5, ESWR,    4,    4,    4,    4}, // NOAS (single-quote string)
+	/* S5 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (SL single-quote)
+	/* S6 */ { 6,    6,    6,    6,    6, ESWR,    7,    6,    6,    6}, // NOAS (comment)
+	/* S7 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (CMT)
+	/* S8 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (Err1 no retract)
+	/* S9 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (Err2 retract)
+	/* S10*/ { 11,   10,   11,   11,   11,   11,   11,   11,   11,   11}, // NOAS (digit accumulator)
+	/* S11*/ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (IL accept)
+	/* S12*/ { 12,   12,   12,   12,   12, ESWR,   12,   12,   13,   12}, // NOAS (double-quote string)
+	/* S13*/ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (SL double-quote)
+	/* S14 */ {16,  16,   16,   16,  16,   16,   16,   16,   16,   15}, // NOAS — lookahead; only '=' (col 9) S15
+	/* S15 */ {FS,  FS,   FS,   FS,  FS,   FS,   FS,   FS,   FS,   FS}, // FSNR — 2-char accept (==, <=, >=, !=)
+	/* S16 */ {FS,  FS,   FS,   FS,  FS,   FS,   FS,   FS,   FS,   FS}, // FSWR — 1-char accept (<, >, =, !)
+};
+
+digit stateType[NUM_STATES] = {
+	NOFS, /* 00 */
+	NOFS, /* 01 */
+	FSNR, /* 02 (MNID) */
+	FSWR, /* 03 (KEY) */
+	NOFS, /* 04 */
+	FSNR, /* 05 (SL single-quote) */
+	NOFS, /* 06 */
+	FSNR, /* 07 (CMT) */
+	FSNR, /* 08 (Err1 no retract) */
+	FSWR, /* 09 (Err2 retract) */
+	NOFS, /* 10 (digit accumulator) */
+	FSWR, /* 11 (IL accept) */
+	NOFS, /* 12 (double-quote string) */
+	FSNR, /* 13 (SL double-quote) */
+	NOFS, /* 14 (relational lookahead) */
+	FSNR, /* 15 (2-char relational) */
+	FSWR, /* 16 (1-char relational) */
+};
+/*
+ * Accepting function (action) callback table (array) definition
+ * If you do not want to use the typedef, the equvalent declaration is:
+ */
+PTR_ACCFUN finalStateTable[NUM_STATES] = {
+	NULL,    /* -               [00] */
+	NULL,    /* -               [01] */
+	funcID,  /* MNID            [02] */
+	funcKEY, /* KEY             [03] */
+	NULL,    /* -               [04] */
+	funcSL,  /* SL single-quote [05] */
+	NULL,    /* -               [06] */
+	funcCMT, /* CMT             [07] */
+	funcErr, /* ERR1 no retract [08] */
+	funcErr, /* ERR2 retract    [09] */
+	NULL,    /* digit accum     [10] */
+	funcIL,  /* IL              [11] */
+	NULL,    /* -               [12] */
+	funcSL,  /* SL double-quote [13] */
+	NULL,
+	funcREL, /* Accepting State for relational*/
+	funcREL
+};
+
+/*
+-------------------------------------------------
+Language keywords
+-------------------------------------------------
+*/
+
+/* The list of keywords */
+word keywordTable[KWT_SIZE] = {
+	"data",		/* KW00 */
+	"code",		/* KW01 */
+	"digit",	/* KW02 */
+	"rad",		/* KW03 */
+	"word",		/* KW04 */
+	"if",		/* KW05 */
+	"else",		/* KW07 */
+	"while",	/* KW08 */
+	"do",		/* KW09 */
+	"and",		/* KW10 */
+	"or",		/* KW11 */
+	"return",	/* KW12 */
+	"character",/* KW13 */
+	"bigdigit", /* KW14 */
+	"bigrad",	/* KW15 */
+	"empty",	/* KW16 */
+	"duple",	/* KW17 */
+	"byte",	/* KW18 */
+};
 /*
  ************************************************************
  * Intitializes scanner
  *		This function initializes the scanner using defensive programming.
  ***********************************************************
- */
- /* TO_DO: Follow the standard and adjust datatypes */
+*/
 
 digit startScanner(BufferPointer psc_buf) {
 	if (psc_buf == NULL) {
-		return 1; // TO_DO set up error code
+		return STELL_ERR; 
 	}
-	/* TO_DO: Start histogram */
+	/* Start histogram */
 	for (digit i=0; i<NUM_TOKENS;i++)
 		scData.scanHistogram[i] = 0;
 	/* Basic scanner initialization */
@@ -138,8 +210,6 @@ digit startScanner(BufferPointer psc_buf) {
 
 Token tokenizer(empty) {
 
-	/* TO_DO: Follow the standard and adjust datatypes */
-
 	Token currentToken = { 0 }; /* token to return after pattern recognition. Set all structure members to 0 */
 	character c;			/* input symbol */
 	digit state = 0;	/* initial state of the FSM */
@@ -148,7 +218,6 @@ Token tokenizer(empty) {
 
 	digit lexLength;	/* token length */
 	digit i;			/* counter */
-	character newc;		// new char
 
 	/* Starting lexeme */
 	word lexeme;	/* lexeme (to check the function) */
@@ -160,17 +229,11 @@ Token tokenizer(empty) {
 	while (1) { /* endless loop broken by token returns it will generate a warning */
 		c = readerGetChar(sourceBuffer);
 
-		// TO_DO: Defensive programming
-		if (c < 0 || c >= NCHAR)
-			return currentToken;
-
 		/* ------------------------------------------------------------------------
 			Part 1: Implementation of token driven scanner.
 			Every token is possessed by its own dedicated code
 			-----------------------------------------------------------------------
 		*/
-
-		/* TO_DO: All patterns that do not require accepting functions */
 		switch (c) {
 
 		/* Cases for spaces */
@@ -181,7 +244,12 @@ Token tokenizer(empty) {
 		case NWL_CHR:
 			line++;
 			break;
-
+		case RET_CHR: // Carriage return
+			break;
+		case CMA_CHR:
+			currentToken.code = CMA_T;
+			scData.scanHistogram[currentToken.code]++;
+			return currentToken;
 		/* Cases for symbols */
 		case SCL_CHR:
 			currentToken.code = EOS_T;
@@ -209,11 +277,7 @@ Token tokenizer(empty) {
 			scData.scanHistogram[currentToken.code]++;
 			currentToken.attribute.seofType = SEOF_0;
 			return currentToken;
-		case EOF_CHR:
-			currentToken.code = SEOF_T;
-			scData.scanHistogram[currentToken.code]++;
-			currentToken.attribute.seofType = SEOF_255;
-			return currentToken;
+		
 
 		/* ------------------------------------------------------------------------
 			Part 2: Implementation of Finite State Machine (DFA) or Transition Table driven Scanner
@@ -243,15 +307,7 @@ Token tokenizer(empty) {
 			scData.scanHistogram[currentToken.code]++;
 			currentToken.attribute.arithmeticOperator = OP_DIV;
 			return currentToken;
-
-		/* TO_DO: Adjust / check the logic for your language */
 		
-		// Logical operator
-		case NOT_CHR:
-			currentToken.code = LOG_OP_T;
-			scData.scanHistogram[currentToken.code]++;
-			currentToken.attribute.logicalOperator = OP_NOT;
-			return currentToken;
 		default: // general case
 			state = nextState(state, c);
 			lexStart = readerGetPosRead(sourceBuffer) - 1;
@@ -276,7 +332,7 @@ Token tokenizer(empty) {
 				readerAddChar(lexemeBuffer, readerGetChar(sourceBuffer));
 			readerAddChar(lexemeBuffer, READER_TERMINATOR);
 			lexeme = readerGetContent(lexemeBuffer, 0);
-			// TO_DO: Defensive programming
+			// Defensive programming
 			if (!lexeme)
 				return currentToken;
 			currentToken = (*finalStateTable[state])(lexeme);
@@ -313,7 +369,6 @@ Token tokenizer(empty) {
 	or #undef DEBUG is used - see the top of the file.
  ***********************************************************
  */
- /* TO_DO: Just change the datatypes */
 
 digit nextState(digit state, character c) {
 	digit col;
@@ -340,11 +395,6 @@ digit nextState(digit state, character c) {
 	* For instance, a letter should return the column for letters, etc.
  ***********************************************************
  */
-/* TO_DO: Use your column configuration */
-
-/* Adjust the logic to return next column in TT */
-/*    [A-z],[0-9],    _,    &,   \', SEOF,    #, other
-	   L(0), D(1), U(2), M(3), Q(4), E(5), C(6),  O(7) */
 
 digit nextClass(character c) {
 	digit val = -1;
@@ -352,19 +402,33 @@ digit nextClass(character c) {
 	case UND_CHR:
 		val = 2;
 		break;
-	case AMP_CHR:
+	case COL_CHR:
 		val = 3;
 		break;
 	case QUT_CHR:
 		val = 4;
-		break;
+		break; 
 	case HST_CHR:
 		val = 6;
 		break;
 	case EOS_CHR:
-	case EOF_CHR:
 		val = 5;
 		break;
+	case EQU_CHR:
+		val = 9;
+		break;
+	case NOT_CHR:
+	case LESS_CHR:
+	case MORE_CHR:
+		val = 7;
+		break;
+	//case EQU_CHR:
+		
+		//break;
+	case DQT_CHR:
+		val = 8;
+		break;
+	
 	default:
 		if (isalpha(c))
 			val = 0;
@@ -382,7 +446,6 @@ digit nextClass(character c) {
  *		Function responsible to identify COM (comments).
  ***********************************************************
  */
- /* TO_DO: Adjust the function for IL */
 
 Token funcCMT(word lexeme) {
 	Token currentToken = { 0 };
@@ -408,10 +471,9 @@ Token funcCMT(word lexeme) {
   *   additional three dots (...) should be put in the output.
   ***********************************************************
   */
-  /* TO_DO: Adjust the function for IL */
 
 Token funcIL(word lexeme) {
-	printf("DEBUG: funcIL received lexeme: [%s]\n", lexeme);
+	//printf("DEBUG: funcIL received lexeme: [%s]\n", lexeme);
 	Token currentToken = { 0 };
 	bigdigit tlong;
 	if (lexeme[0] != EOS_CHR && strlen(lexeme) > NUM_LEN) {
@@ -444,24 +506,24 @@ Token funcIL(word lexeme) {
  *  - Suggestion: Use "strncpy" function.
  ***********************************************************
  */
- /* TO_DO: Adjust the function for ID */
 
+// Updated to use : for method identifiers
 Token funcID(word lexeme) {
 	Token currentToken = { 0 };
 	size_t length = strlen(lexeme);
 	character lastch = lexeme[length - 1];
 	digit isID = FALSE;
 	switch (lastch) {
-		case AMP_CHR:
-			currentToken.code = MNID_T;
-			scData.scanHistogram[currentToken.code]++;
-			isID = TRUE;
-			break;
-		default:
-			// Test Keyword
-			///lexeme[length - 1] = EOS_CHR;
-			currentToken = funcKEY(lexeme);
-			break;
+	case COL_CHR:
+		currentToken.code = MNID_T;
+		scData.scanHistogram[currentToken.code]++;
+		isID = TRUE;
+		break;
+	default:
+		// Test Keyword
+		///lexeme[length - 1] = EOS_CHR;
+		currentToken = funcKEY(lexeme);
+		break;
 	}
 	if (isID == TRUE) {
 		strncpy(currentToken.attribute.idLexeme, lexeme, VID_LEN);
@@ -469,6 +531,7 @@ Token funcID(word lexeme) {
 	}
 	return currentToken;
 }
+
 
 
 /*
@@ -481,7 +544,6 @@ Token funcID(word lexeme) {
  *   separate the lexemes. Remember also to incremente the line.
  ***********************************************************
  */
-/* TO_DO: Adjust the function for SL */
 
 Token funcSL(word lexeme) {
 	Token currentToken = { 0 };
@@ -491,6 +553,7 @@ Token funcSL(word lexeme) {
 		if (lexeme[i] == NWL_CHR)
 			line++;
 		if (!readerAddChar(stringLiteralTable, lexeme[i])) {
+			printf("DEBUG: Adding to string literal table failed for %c", lexeme[i]);
 			currentToken.code = RTE_T;
 			scData.scanHistogram[currentToken.code]++;
 			strcpy(currentToken.attribute.errLexeme, "Run Time Error:");
@@ -499,6 +562,7 @@ Token funcSL(word lexeme) {
 		}
 	}
 	if (!readerAddChar(stringLiteralTable, EOS_CHR)) {
+		printf("DEBUG: Couldn't append EOS_CHR\n");
 		currentToken.code = RTE_T;
 		scData.scanHistogram[currentToken.code]++;
 		strcpy(currentToken.attribute.errLexeme, "Run Time Error:");
@@ -510,20 +574,17 @@ Token funcSL(word lexeme) {
 	return currentToken;
 }
 
-
 /*
 ************************************************************
  * This function checks if one specific lexeme is a keyword.
  * - Tip: Remember to use the keywordTable to check the keywords.
  ***********************************************************
  */
- /* TO_DO: Adjust the function for Keywords */
 
 Token funcKEY(word lexeme) {
 	//printf("Func Key Lexeme: %s", lexeme);
 	Token currentToken = { 0 };
 	digit kwindex = -1, j = 0;
-	digit len = (digit)strlen(lexeme);
 	///lexeme[len - 1] = EOS_CHR;
 	for (j = 0; j < KWT_SIZE; j++)
 		if (!strcmp(lexeme, &keywordTable[j][0]))
@@ -554,6 +615,41 @@ Token funcKEY(word lexeme) {
 	return currentToken;
 }
 
+Token funcREL(word lexeme) {
+	Token t = { 0 };
+	if (!strcmp(lexeme, "==")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_EQ;
+	}
+	else if (!strcmp(lexeme, "!=")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_NE;
+	}
+	else if (!strcmp(lexeme, "<=")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_LE;
+	}
+	else if (!strcmp(lexeme, ">=")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_GE;
+	}
+	else if (!strcmp(lexeme, "<")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_LT;
+	}
+	else if (!strcmp(lexeme, ">")) {
+		t.code = REL_OP_T;
+		t.attribute.relationalOperator = OP_GT;
+	}
+	else if (!strcmp(lexeme, "=")) {
+		t.code = ASN_T; /* Assignment operator */
+	}
+	else if (!strcmp(lexeme, "!")) {
+		t.code = LOG_OP_T;
+		t.attribute.logicalOperator = OP_NOT;
+	}
+	return t;
+}
 
 /*
 ************************************************************
@@ -565,7 +661,6 @@ Token funcKEY(word lexeme) {
  *   so remember to increment line.
  ***********************************************************
  */
- /* TO_DO: Adjust the function for Errors */
 
 Token funcErr(word lexeme) {
 	Token currentToken = { 0 };
@@ -641,8 +736,11 @@ empty printToken(Token t) {
 		printf("LOG_OP_T\t%s\n", logSymbols[t.attribute.logicalOperator]);
 		break;
 	case REL_OP_T: 
-		char* relSymbols[] = { "==", "!=", ">", "<" };
+		char* relSymbols[] = { "==", "!=", ">", "<", ">=", "<=" };
 		printf("REL_OP_T\t%s\n", relSymbols[t.attribute.relationalOperator]);
+		break;
+	case COL_T:
+		printf("COL_T\t\n");
 		break;
 	case KW_T:
 		printf("KW_T\t\t%s\n", keywordTable[t.attribute.codeType]);
@@ -652,6 +750,12 @@ empty printToken(Token t) {
 		break;
 	case EOS_T:
 		printf("EOS_T\n");
+		break;
+	case ASN_T:
+		printf("ASN_T\n");
+		break;
+	case CMA_T:
+		printf("CMA_T\n");
 		break;
 	// Arithmetic operator
 	case ART_OP_T:
@@ -683,7 +787,3 @@ empty printScannerData(ScannerData scData) {
 	}
 	printf("----------------------------------\n");
 }
-
-/*
-TO_DO: (If necessary): HERE YOU WRITE YOUR ADDITIONAL FUNCTIONS (IF ANY).
-*/

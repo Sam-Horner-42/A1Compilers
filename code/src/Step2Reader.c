@@ -124,7 +124,7 @@ BufferPointer readerCreate(digit size, rad factor) {
 BufferPointer readerAddChar(BufferPointer const readerPointer, character ch) {
 	/* Defensive programming */
 	if (!readerPointer) return HOLLOW;
-	if (!ch) return HOLLOW;
+	//if (!ch) return HOLLOW;
 
 	/* Check for invalid ASCII (0-127) */
 	if ((digit)ch < 0 || (digit)ch >= NCHAR-1) {

@@ -34,6 +34,8 @@
 #define HOLLOW NULL
 #define EOF_CHAR '\0'
 
+#define STELL_ERR 1
+
 /*
 ------------------------------------------------------------
 Data types definitions
