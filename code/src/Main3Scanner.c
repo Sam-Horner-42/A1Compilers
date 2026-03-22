@@ -1,35 +1,10 @@
 /*
 ************************************************************
 * COMPILERS COURSE - Algonquin College
-* Code version: Fall, 2024
-* Author: Samuel Horner
+* Code version: Winter, 2026
+* Author: Sam Horner 040935005
 * Professors: Paulo Sousa
 ************************************************************
-#
-# "=---------------------------------------="
-# "|  COMPILERS - ALGONQUIN COLLEGE (F24)  |"
-# "=---------------------------------------="
-# "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# "    @@                             @@    ”
-# "    @@           %&@@@@@@@@@@@     @@    ”
-# "    @@       @%% (@@@@@@@@@  @     @@    ”
-# "    @@      @& @   @ @       @     @@    ”
-# "    @@     @ @ %  / /   @@@@@@     @@    ”
-# "    @@      & @ @  @@              @@    ”
-# "    @@       @/ @*@ @ @   @        @@    ”
-# "    @@           @@@@  @@ @ @      @@    ”
-# "    @@            /@@    @@@ @     @@    ”
-# "    @@     @      / /     @@ @     @@    ”
-# "    @@     @ @@   /@/   @@@ @      @@    ”
-# "    @@     @@@@@@@@@@@@@@@         @@    ”
-# "    @@                             @@    ”
-# "    @@         S O F I A           @@    ”
-# "    @@                             @@    ”
-# "    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    ”
-# "                                         "
-# "[READER SCRIPT .........................]"
-# "                                         "
-*/
 
 /*
 ************************************************************
@@ -157,7 +132,7 @@ digit main3Scanner(digit argc, word* argv) {
 	/* Load source file into input buffer  */
 	printf("Reading file %s ....Please wait\n", fileName);
 	loadSize = readerLoad(sourceBuffer, fileName);
-	if (loadSize == READER_ERROR) // TODO Define the error code
+	if (loadSize == READER_ERROR) 
 		printScannerError("%s%s", argv[0], ": Error in loading buffer.");
 
 	/* Close source file */
