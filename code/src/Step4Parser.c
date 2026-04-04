@@ -244,6 +244,24 @@ empty printError() {
 	case EOS_T:
 		printf("NA\n");
 		break;
+	case VID_T:
+		printf("VID_T\t\t%s\n", t.attribute.idLexeme);
+		break;
+	case INL_T:
+		printf("INL_T\t\t%d\n", t.attribute.intValue);
+		break;
+	case FPL_T:
+		printf("FPL_T\t\t%f\n", t.attribute.floatValue);
+		break;
+	case ASN_T:
+		printf("ASN_T\n");
+		break;
+	case ART_OP_T:
+		printf("ART_OP_T\n"); /* You can expand this with the symbols array if you want */
+		break;
+	case REL_OP_T:
+		printf("REL_OP_T\n");
+		break;
 	default:
 		printf("%s%s%d\n", STR_LANGNAME, ": Scanner error: invalid token code: ", t.code);
 		numParserErrors++; // Updated parser error
