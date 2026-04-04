@@ -363,7 +363,6 @@ empty comment() {
  * looking for data type keywords. It routes to paramList() if arguments
  * exist, or takes the epsilon (empty) path if the parentheses are empty.
  ***********************************************************
- */*******************************************************
  */
 empty optParams() {
 	psData.parsHistogram[BNF_optParams]++;
