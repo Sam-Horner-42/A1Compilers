@@ -2,10 +2,20 @@
 # Samuel Horner 040935005 #
 # Function identifiers are appended with : #
 
+digit function:(digit param, duple isParam); # function declaration #
 
+# String #
 word name = "Sam Horner";
+# integer #
 digit pi = 3.14;
-digit function:(digit param, boolean isParam) {
+
+# main function #
+digit main:() {
+	
+	print:("Hello World");
+}
+
+digit function:(digit param, duple isParam) {
 	digit localParam;
 	if (isParam){
 		return param;
@@ -16,35 +26,42 @@ digit function:(digit param, boolean isParam) {
 }
 
 empty otherFunction:(){
-	print("Hello World");
+	print:("Hello World");
+}
+
+empty iteration:() {
+	digit iterator = 1;
+	while(iterator < 10){
+		print:("While");
+		iterator = iterator + 1;
+	}
 }
 
 duple comparisonFunction:(digit val1, digit val2){
 	if (val1 > val2){
 		return TRUE;
-	} else if (val1 < val2){
+	} else {
 		return FALSE;
-	} else if (val2 <= val1){
-		return TRUE;
-	} else if (val1 >= val2){
-		return FALSE;
-	} else if (val1 != val2){
-		return TRUE;
-	} else if (val2 == val1){
-		return FALSE;
-	} else if(val2 != val1 and val2 == val1) {
-		return FALSE;
+	}
+	if(val1 <= val2){
+		print:("Less than equal");
+	}
+	if(val1 >= val2){
+		print:("Greater than equal");
+	}
+	if(val1 != val2){
+		print:("Not equal");
 	}
 
 }
 
 bigdigit mathOperations:(){
-	print(1 + 2);
-	print(4 / 2);
-	print(2 * 2);
-	print(4 - 2);
-	print(5^2);
-	print(10%2);
+	digit addition = 1 + 2;
+	digit division = 4 / 2;
+	digit multiplication = 2 * 2;
+	digit subtraction = 4 - 2;
+	digit exponent = 5^2;
+	digit modulo = 10%2;
 }
 
 

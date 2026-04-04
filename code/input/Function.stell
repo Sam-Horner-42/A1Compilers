@@ -1,6 +1,9 @@
+digit myFunction:(digit param1, duple param2);
 
 digit myFunction:(digit param1, duple param2){
-	digit myVal = param1;
-
-	return digit;
+	digit myVal = param1 * param2;
+	print:("Hello");
+	return myVal;
 }
+
+myFunction:(5, 10);

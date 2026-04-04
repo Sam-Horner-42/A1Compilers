@@ -1,4 +1,2 @@
-!= <= >= == =
-if this then that
-if this and that then TRUE
-if this or that then FALSE
+if(param1){
+} else {}

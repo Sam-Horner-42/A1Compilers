@@ -49,7 +49,7 @@
 /* This buffer is used as a repository for string literals. */
 extern BufferPointer stringLiteralTable;	/* String literal table */
 digit line;								/* Current line number of the source code */
-extern digit errorNumber;				/* Defined in platy_st.c - run-time error number */
+digit errorNumber;				/* Defined in platy_st.c - run-time error number */
 
 /* Local(file) global objects - variables */
 static BufferPointer lexemeBuffer;			/* Pointer to temporary lexeme buffer */
@@ -80,28 +80,31 @@ word tokenStrTable[NUM_TOKENS] = {
 	"COL_T",
 	"ASN_T",
 	"CMA_T",
+	"FPL_T"
 };
 /* Transition table - type of states defined in separate table */
 digit transitionTable[NUM_STATES][CHAR_CLASSES] = {
-	/*   [A-z],	[0-9],    _,    :,    \',   SEOF,    #, other
-		 L(0),  D(1),   U(2),  M(3),  Q(4), E(5), C(6),  O(7) */
-	/* S0  */ { 1,  10, ESNR, ESNR,   4, ESWR,    6,   14,   12,   14}, // NOAS
-	/* S1 */ { 1,    1,    1,    2,    3,    3,    3,    3,    3,    3}, // NOAS (ID chars)
-	/* S2 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (MNID)
-	/* S3 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (KEY)
-	/* S4 */ { 4,    4,    4,    4,    5, ESWR,    4,    4,    4,    4}, // NOAS (single-quote string)
-	/* S5 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (SL single-quote)
-	/* S6 */ { 6,    6,    6,    6,    6, ESWR,    7,    6,    6,    6}, // NOAS (comment)
-	/* S7 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (CMT)
-	/* S8 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (Err1 no retract)
-	/* S9 */ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (Err2 retract)
-	/* S10*/ { 11,   10,   11,   11,   11,   11,   11,   11,   11,   11}, // NOAS (digit accumulator)
-	/* S11*/ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSWR (IL accept)
-	/* S12*/ { 12,   12,   12,   12,   12, ESWR,   12,   12,   13,   12}, // NOAS (double-quote string)
-	/* S13*/ { FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS,   FS}, // FSNR (SL double-quote)
-	/* S14 */ {16,  16,   16,   16,  16,   16,   16,   16,   16,   15}, // NOAS — lookahead; only '=' (col 9) S15
-	/* S15 */ {FS,  FS,   FS,   FS,  FS,   FS,   FS,   FS,   FS,   FS}, // FSNR — 2-char accept (==, <=, >=, !=)
-	/* S16 */ {FS,  FS,   FS,   FS,  FS,   FS,   FS,   FS,   FS,   FS}, // FSWR — 1-char accept (<, >, =, !)
+	/*       [A-z],	[0-9], _,      :,      \',   SEOF,    #, other
+		     L(0),  D(1),  U(2),   M(3),   Q(4), E(5),  C(6),  O(7),  "(8), =(9), .(10)*/
+	/* S0  */{ 1,   10,    ESNR,   ESNR,   4,    ESWR,   6,     14,   12,    14,	ESNR},	// NOAS
+	/* S1 */ { 1,   1,     1,      2,      3,    3,      3,     3,    3,     3,		3},			// NOAS (ID chars)
+	/* S2 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR (MNID)
+	/* S3 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSWR (KEY)
+	/* S4 */ { 4,   4,     4,      4,      5,    ESWR,    4,     4,    4,    4,		4},			// NOAS (single-quote string)
+	/* S5 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR (SL single-quote)
+	/* S6 */ { 6,   6,     6,      6,      6,    ESWR,    7,    6,    6,     6,		6},			// NOAS (comment)
+	/* S7 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR (CMT)
+	/* S8 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR (Err1 no retract)
+	/* S9 */ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSWR (Err2 retract)
+	/* S10*/ { 11,  10,    11,     11,     11,   11,     11,    11,   11,    11,	17},			// NOAS (digit accumulator)
+	/* S11*/ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSWR (IL accept)
+	/* S12*/ { 12,  12,    12,     12,     12,   ESWR,   12,    12,   13,    12,	12},			// NOAS (double-quote string)
+	/* S13*/ { FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR (SL double-quote)
+	/* S14 */ {16,  16,    16,     16,     16,   16,     16,    16,   16,    15,	16},			// NOAS — lookahead; only '=' (col 9) S15
+	/* S15 */ {FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},			// FSNR — 2-char accept (==, <=, >=, !=)
+	/* S16 */ {FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,	FS},	// FSWR — 1-char accept (<, >, =, !)
+	/* S17 */ {18,  17,    18,     18,     18,   18,     18,    18,   18,    18,    18}, // NOFS (float accum)
+	/* S18 */ {FS,  FS,    FS,     FS,     FS,   FS,     FS,    FS,   FS,    FS,    FS}  // FSWR (float accept)
 };
 
 digit stateType[NUM_STATES] = {
@@ -122,29 +125,34 @@ digit stateType[NUM_STATES] = {
 	NOFS, /* 14 (relational lookahead) */
 	FSNR, /* 15 (2-char relational) */
 	FSWR, /* 16 (1-char relational) */
+	NOFS,
+	FSWR, /* 17 (FPL accept) */
+
 };
 /*
  * Accepting function (action) callback table (array) definition
  * If you do not want to use the typedef, the equvalent declaration is:
  */
 PTR_ACCFUN finalStateTable[NUM_STATES] = {
-	NULL,    /* -               [00] */
-	NULL,    /* -               [01] */
-	funcID,  /* MNID            [02] */
-	funcKEY, /* KEY             [03] */
-	NULL,    /* -               [04] */
-	funcSL,  /* SL single-quote [05] */
-	NULL,    /* -               [06] */
-	funcCMT, /* CMT             [07] */
-	funcErr, /* ERR1 no retract [08] */
-	funcErr, /* ERR2 retract    [09] */
-	NULL,    /* digit accum     [10] */
-	funcIL,  /* IL              [11] */
-	NULL,    /* -               [12] */
-	funcSL,  /* SL double-quote [13] */
-	NULL,
-	funcREL, /* Accepting State for relational*/
-	funcREL
+	funcErr, /* 00 */
+	funcErr, /* 01 */
+	funcID,  /* 02 MNID */
+	funcKEY, /* 03 KEY */
+	funcErr, /* 04 */
+	funcSL,  /* 05 SL single-quote */
+	funcErr, /* 06 */
+	funcCMT, /* 07 CMT */
+	funcErr, /* 08 ERR1 no retract */
+	funcErr, /* 09 ERR2 retract */
+	funcErr, /* 10 digit accum */
+	funcIL,  /* 11 IL */
+	funcErr, /* 12 */
+	funcSL,  /* 13 SL double-quote */
+	funcErr, /* 14 */
+	funcREL, /* 15 Accepting State for relational */
+	funcREL, /* 16 Accepting State for relational */
+	funcErr, /* 17 FPL accum (Not a final state) */
+	funcFPL  /* 18 FPL accept */
 };
 
 /*
@@ -307,7 +315,16 @@ Token tokenizer(empty) {
 			scData.scanHistogram[currentToken.code]++;
 			currentToken.attribute.arithmeticOperator = OP_DIV;
 			return currentToken;
-		
+		case MOD_CHR:
+			currentToken.code = ART_OP_T;
+			scData.scanHistogram[currentToken.code]++;
+			currentToken.attribute.arithmeticOperator = OP_MOD;
+			return currentToken;
+		case POW_CHR:
+			currentToken.code = ART_OP_T;
+			scData.scanHistogram[currentToken.code]++;
+			currentToken.attribute.arithmeticOperator = OP_POW;
+			return currentToken;
 		default: // general case
 			state = nextState(state, c);
 			lexStart = readerGetPosRead(sourceBuffer) - 1;
@@ -428,7 +445,9 @@ digit nextClass(character c) {
 	case DQT_CHR:
 		val = 8;
 		break;
-	
+	case FPT_CHR:
+		val = 10;
+		break;
 	default:
 		if (isalpha(c))
 			val = 0;
@@ -493,6 +512,16 @@ Token funcIL(word lexeme) {
 	return currentToken;
 }
 
+Token funcFPL(word lexeme) {
+	Token currentToken = { 0 };
+	float val = (float)strtod(lexeme, NULL);
+	currentToken.code = FPL_T;
+	if ((val<FLT_MIN || val>FLT_MAX) && strtod(lexeme, NULL) != 0.0) {
+		return funcErr(lexeme);
+	}
+	currentToken.attribute.floatValue = val;
+	return currentToken;
+}
 
 /*
  ************************************************************
@@ -731,6 +760,9 @@ empty printToken(Token t) {
 	case INL_T:
 		printf("INL_T\t\t%d\n", t.attribute.intValue);
 		break;
+	case FPL_T:
+		printf("FPL_T\t\t%f\n", t.attribute.floatValue);
+		break;
 	case LOG_OP_T: 
 		char* logSymbols[] = { "and", "or", "!" };
 		printf("LOG_OP_T\t%s\n", logSymbols[t.attribute.logicalOperator]);
@@ -759,7 +791,7 @@ empty printToken(Token t) {
 		break;
 	// Arithmetic operator
 	case ART_OP_T:
-		char* opSymbols[] = { "+", "-", "*", "/" };
+		char* opSymbols[] = { "+", "-", "*", "/", "%", "^"};
 		printf("ART_OP_T\t%s\n", opSymbols[t.attribute.arithmeticOperator]);
 		break;
 	default:

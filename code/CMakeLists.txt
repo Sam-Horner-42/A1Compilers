@@ -26,7 +26,7 @@ add_executable (Compilers
 	"src/Main2Reader.c"	"src/Main1Coder.c"
 	"src/Main3Scanner.c" "includes/Step3Scanner.h"
 	"src/Step3Scanner.c"
- )
+  "includes/Step4Parser.h" "src/Main4Parser.c" "src/Step4Parser.c")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Compilers PROPERTY CXX_STANDARD 20)

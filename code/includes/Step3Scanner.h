@@ -69,7 +69,7 @@
 #define RTE_CODE 1  /* Value for run-time error */
 
 /* The number of tokens */
-#define NUM_TOKENS 20
+#define NUM_TOKENS 21
 
 #define KWT_SIZE 18
 /* Token codes */
@@ -94,6 +94,7 @@ enum TOKENS {
 	COL_T,		/* 17: Col Identifier token defines the beginning of a function */
 	ASN_T,		/* 18: Single equals sign, assigment token*/
 	CMA_T,		/* 19: Comma token */
+	FPL_T,		/* 20: Floating point */
 
 };
 
@@ -101,7 +102,7 @@ enum TOKENS {
 extern word tokenStrTable[NUM_TOKENS];
 
 /* Operators token attributes */
-typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV } AriOperator;
+typedef enum ArithmeticOperators { OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_POW } AriOperator;
 typedef enum RelationalOperators { OP_EQ, OP_NE, OP_GT, OP_LT, OP_GE, OP_LE } RelOperator;
 typedef enum LogicalOperators { OP_AND, OP_OR, OP_NOT } LogOperator;
 typedef enum SourceEndOfFile { SEOF_0, SEOF_255 } EofOperator;
@@ -170,6 +171,8 @@ typedef struct scannerData {
 #define SUB_CHR '-'		// CH15
 #define MUL_CHR '*'		// CH16
 #define DIV_CHR '/'		// CH17
+#define MOD_CHR '%'
+#define POW_CHR '^'
 
 /* Logical Operators */
 #define NOT_CHR '!'		// CH18
@@ -188,6 +191,8 @@ typedef struct scannerData {
 
 #define CMA_CHR ','
 
+#define FPT_CHR '.'
+
 
 
 /*  Special case tokens processed separately one by one in the token-driven part of the scanner:
@@ -196,11 +201,11 @@ typedef struct scannerData {
  /* Error states and illegal state */
 #define ESNR	8		/* Error state with no retract */
 #define ESWR	9		/* Error state with retract */
-#define FS		18  /* Illegal state */
+#define FS		19  /* Illegal state */
 
  /* State transition table definition */
-#define NUM_STATES    17
-#define CHAR_CLASSES  10
+#define NUM_STATES 19
+#define CHAR_CLASSES 11
 
 /* Transition table - type of states defined in separate table */
 extern digit transitionTable[NUM_STATES][CHAR_CLASSES];
@@ -214,11 +219,11 @@ extern digit stateType[NUM_STATES];
 
 /* Static (local) function  prototypes */
 digit			startScanner(BufferPointer psc_buf);
-digit	nextClass(character c);					/* character class function */
-digit	nextState(digit, character);		/* state machine function */
+digit			nextClass(character c);					/* character class function */
+digit			nextState(digit, character);		/* state machine function */
 empty			printScannerData(ScannerData scData);
 Token			tokenizer(empty);
-
+empty			printToken(Token t);
 
 /*
 -------------------------------------------------
@@ -237,6 +242,7 @@ Token funcCMT   (word lexeme);
 Token funcKEY	(word lexeme);
 Token funcErr	(word lexeme);
 Token funcREL	(word lexeme);
+Token funcFPL	(word lexeme);
 
 extern digit transitionTable[NUM_STATES][CHAR_CLASSES];
 extern digit stateType[NUM_STATES];

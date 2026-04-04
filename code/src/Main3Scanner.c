@@ -5,8 +5,6 @@
 * Author: Sam Horner 040935005
 * Professors: Paulo Sousa
 ************************************************************
-
-/*
 ************************************************************
 * File name: MainScanner.c
 * Compiler: MS Visual Studio 2022
@@ -65,8 +63,8 @@
  */
 
  /* Global objects - variables (used in other codes as external) */
-BufferPointer stringLiteralTable;	/* This buffer implements String Literal Table */
-digit errorNumber;				/* Run-time error number = 0 by default (ANSI) */
+extern BufferPointer stringLiteralTable;	/* This buffer implements String Literal Table */
+extern digit errorNumber;				/* Run-time error number = 0 by default (ANSI) */
 
 /* External objects */
 extern digit line; /* Source code line numbers - defined in scanner.c */
