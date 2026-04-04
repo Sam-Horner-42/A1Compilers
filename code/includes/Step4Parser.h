@@ -107,7 +107,7 @@ empty arithmeticExpressionPrime();
 empty primaryExpression();
 empty variableDeclarationStatement();
 
-/* TO_DO: Place ALL non-terminal function declarations */
+/* ALL non-terminal function declarations */
 empty codeSession();
 empty comment();
 empty dataSession();

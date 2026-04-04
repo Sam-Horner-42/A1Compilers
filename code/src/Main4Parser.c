@@ -2,7 +2,7 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Summer, 2025
-* Author: TO_DO
+* Author: Sam Horner 040935005
 * Professors: Paulo Sousa
 ************************************************************
 #

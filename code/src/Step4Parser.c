@@ -2,7 +2,7 @@
 ************************************************************
 * COMPILERS COURSE - Algonquin College
 * Code version: Fall, 2024
-* Author: TO_DO
+* Author: Sam Horner 040935005
 * Professors: Paulo Sousa
 ************************************************************
 #
@@ -44,8 +44,6 @@
 ************************************************************
 */
 
-/* TO_DO: Adjust the function header */
-
 #ifndef COMPILERS_H_
 #include "../includes/Compilers.h"
 #endif
@@ -70,7 +68,6 @@ ParserData psData;
  * Process Parser
  ***********************************************************
  */
-/* TO_DO: This is the function to start the parser - check your program definition */
 
 /* List of BNF statements */
 enum BNF_RULES {
@@ -105,9 +102,16 @@ static word BNFStrTable[NUM_BNF_RULES] = {
 };
 
 
-
+/*
+ ************************************************************
+ * Function name: startParser
+ * Author: Sam Horner 040935005
+ * Description: Initializes the parser statistics array, grabs the
+ * first lookahead token from the scanner, and kicks off the syntax
+ * analysis by calling the root program() function.
+ ***********************************************************
+ */
 empty startParser() {
-	/* TO_DO: Initialize Parser data */
 	digit i = 0;
 	for (i = 0; i < NUM_BNF_RULES; i++) {
 		psData.parsHistogram[i] = 0;
@@ -124,10 +128,14 @@ empty startParser() {
 
 /*
  ************************************************************
- * Match Token
+ * Function name: matchToken
+ * Author: Sam Horner 040935005
+ * Description: Verifies that the current lookahead token matches the
+ * grammar's expected token code and attribute. If they match, it consumes
+ * the token and advances the scanner. If they do not match, it triggers
+ * the error handler to report the syntax violation.
  ***********************************************************
  */
-/* TO_DO: This is the main code for match - check your definition */
 empty matchToken(digit tokenCode, digit tokenAttribute) {
 	if (DEBUG) {
 		printf("matchToken called, expected Token code: %d, expected Attribute: %d\n", tokenCode, tokenAttribute);
@@ -181,10 +189,14 @@ empty matchToken(digit tokenCode, digit tokenAttribute) {
 
 /*
  ************************************************************
- * Syncronize Error Handler
+ * Function name: syncErrorHandler
+ * Author: Sam Horner 040935005
+ * Description: Implements panic-mode error recovery. When a syntax
+ * error occurs, this function continuously requests new tokens from the
+ * scanner until it finds a synchronizing token (like End of File),
+ * preventing infinite loops and cascading errors.
  ***********************************************************
  */
-/* TO_DO: This is the function to handler error - adjust basically datatypes */
 empty syncErrorHandler(digit syncTokenCode) {
 	if(DEBUG)
 		printf("syncErrorHandler called, syncTokenCode: %d\n", syncTokenCode);
@@ -201,10 +213,13 @@ empty syncErrorHandler(digit syncTokenCode) {
 
 /*
  ************************************************************
- * Print Error
+ * Function name: printError
+ * Author: Sam Horner 040935005
+ * Description: Outputs detailed, human-readable error messages based
+ * on the specific token that caused a syntax failure. It prints the
+ * line number, token code, and string value to aid in script debugging.
  ***********************************************************
  */
-/* TO_DO: This is the function to error printing - adjust basically datatypes */
 empty printError() {
 	if (DEBUG)
 		printf("printError called.\n");
@@ -270,9 +285,12 @@ empty printError() {
 
 /*
  ************************************************************
- * Program statement
- * BNF: <program> -> main& { <opt_statements> }
- * FIRST(<program>)= {CMT_T, MNID_T (main&), SEOF_T}.
+ * Function name: program
+ * Author: Sam Horner 040935005
+ * Description: The root non-terminal function. It loops through the
+ * entire source file, routing top-level constructs (like data type
+ * declarations, control keywords, and function calls) to their appropriate
+ * parsing pathways until the End of File is reached.
  ***********************************************************
  */
 
@@ -323,9 +341,11 @@ empty program() {
 
 /*
  ************************************************************
- * comment
- * BNF: comment
- * FIRST(<comment>)= {CMT_T}.
+ * Function name: comment
+ * Author: Sam Horner 040935005
+ * Description: Consumes comment tokens (CMT_T). This allows the
+ * parser to gracefully ignore developer comments embedded in the source
+ * code without disrupting the grammatical flow.
  ***********************************************************
  */
 empty comment() {
@@ -337,10 +357,13 @@ empty comment() {
 
 /*
  ************************************************************
- * optParams
- * BNF: <optParams> -> <paramList> | e
- * FIRST(<optParams>) = { e, KW_T (KW_int), KW_T (KW_real), KW_T (KW_string)}.
+ * Function name: optParams
+ * Author: Sam Horner 040935005
+ * Description: Checks if a function signature contains parameters by
+ * looking for data type keywords. It routes to paramList() if arguments
+ * exist, or takes the epsilon (empty) path if the parentheses are empty.
  ***********************************************************
+ */*******************************************************
  */
 empty optParams() {
 	psData.parsHistogram[BNF_optParams]++;
@@ -354,13 +377,15 @@ empty optParams() {
 	printf("%s%s\n", STR_LANGNAME, ": Optional param list parsed");
 }
 
-/*
- ************************************************************
- * paramList
- * BNF: <paramList> -> <opt_varlist_declarations>
- * FIRST(<paramList>) = { KW_T (KW_int), KW_T (KW_real), KW_T (KW_string)}.
- ***********************************************************
- */
+ /*
+  ************************************************************
+  * Function name: paramList
+  * Author: Sam Horner 040935005
+  * Description: Parses a sequence of function parameters. It expects
+  * a data type followed by an identifier, and uses recursion to handle
+  * multiple arguments separated by commas.
+  ***********************************************************
+  */
 empty paramList() {
 	/* Match Type */
 	matchToken(KW_T, lookahead.attribute.codeType);
@@ -378,9 +403,10 @@ empty paramList() {
 
 /*
  ************************************************************
- * Optional Var List Declarations
- * BNF: <opt_varlist_declarations> -> <varlist_declarations> | e
- * FIRST(<opt_varlist_declarations>) = { e, KW_T (KW_int), KW_T (KW_real), KW_T (KW_string)}.
+ * Function name: optVarListDeclarations
+ * Author: Sam Horner 040935005
+ * Description: An epsilon pathway function designed to handle
+ * optional variable declarations within specific data blocks.
  ***********************************************************
  */
 empty optVarListDeclarations() {
@@ -394,10 +420,11 @@ empty optVarListDeclarations() {
 
 /*
  ************************************************************
- * Optional statement
- * BNF: <opt_statements> -> <statements> | ϵ
- * FIRST(<opt_statements>) = { ϵ , IVID_T, FVID_T, SVID_T, KW_T(KW_if),
- *				KW_T(KW_while), MNID_T(print&), MNID_T(input&) }
+ * Function name: optionalStatements
+ * Author: Sam Horner 040935005
+ * Description: Checks for the presence of executable statements
+ * inside blocks (like function bodies or loops). It routes valid
+ * statement tokens to statements() or takes the epsilon path if empty.
  ***********************************************************
  */
 empty optionalStatements() {
@@ -422,10 +449,11 @@ empty optionalStatements() {
 
 /*
  ************************************************************
- * Statements
- * BNF: <statements> -> <statement><statementsPrime>
- * FIRST(<statements>) = { IVID_T, FVID_T, SVID_T, KW_T(KW_if),
- *		KW_T(KW_while), MNID_T(input&), MNID_T(print&) }
+ * Function name: statements
+ * Author: Sam Horner 040935005
+ * Description: The entry point for parsing a block of code. It
+ * processes a single statement and then immediately chains into
+ * statementsPrime() to look for subsequent lines of code.
  ***********************************************************
  */
 empty statements() {
@@ -437,10 +465,11 @@ empty statements() {
 
 /*
  ************************************************************
- * Statements Prime
- * BNF: <statementsPrime> -> <statement><statementsPrime> | ϵ
- * FIRST(<statementsPrime>) = { ϵ , IVID_T, FVID_T, SVID_T, 
- *		KW_T(KW_if), KW_T(KW_while), MNID_T(input&), MNID_T(print&) }
+ * Function name: statementsPrime
+ * Author: Sam Horner 040935005
+ * Description: Recursively parses subsequent statements in a block.
+ * It loops through valid starter tokens (identifiers, keywords) to
+ * allow consecutive lines of executable code.
  ***********************************************************
  */
 empty statementsPrime() {
@@ -464,11 +493,11 @@ empty statementsPrime() {
 
 /*
  ************************************************************
- * Single statement
- * BNF: <statement> -> <assignment statement> | <selection statement> |
- *	<iteration statement> | <input statement> | <output statement>
- * FIRST(<statement>) = { IVID_T, FVID_T, SVID_T, KW_T(KW_if), KW_T(KW_while),
- *			MNID_T(input&), MNID_T(print&) }
+ * Function name: statement
+ * Author: Sam Horner 040935005
+ * Description: The main router for execution logic. It analyzes the
+ * current token and directs the parser to specific grammatical rules
+ * such as assignments, output commands, variables, conditionals, or loops.
  ***********************************************************
  */
 empty statement() {
@@ -487,7 +516,6 @@ empty statement() {
 		if (strncmp(lookahead.attribute.idLexeme, LANG_WRTE, 6) == 0) {
 			outputStatement();
 		}
-		/* TO_DO: Add your input statement check here later */
 		else {
 			/* Any other MNID_T is a standard function call */
 			functionCallStatement();
@@ -529,9 +557,11 @@ empty statement() {
 
 /*
  ************************************************************
- * Output Statement
- * BNF: <output statement> -> print& (<output statementPrime>);
- * FIRST(<output statement>) = { MNID_T(print&) }
+ * Function name: outputStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses the specific 'print:' command sequence. It
+ * ensures the method name is followed by parentheses, valid output
+ * variables, and a terminating semicolon.
  ***********************************************************
  */
 empty outputStatement() {
@@ -546,9 +576,11 @@ empty outputStatement() {
 
 /*
  ************************************************************
- * Output Variable List
- * BNF: <opt_variable list> -> <variable list> | ϵ
- * FIRST(<opt_variable_list>) = { IVID_T, FVID_T, SVID_T, ϵ }
+ * Function name: outputVariableList
+ * Author: Sam Horner 040935005
+ * Description: Validates the contents passed into an output
+ * statement, ensuring they are valid printable types like string
+ * literals or variable identifiers.
  ***********************************************************
  */
 empty outputVariableList() {
@@ -568,17 +600,13 @@ empty outputVariableList() {
 
 /*
  ************************************************************
- * The function prints statistics of BNF rules
- * Param:
- *	- Parser data
- * Return:
- *	- Void (procedure)
+ * Function name: printBNFData
+ * Author: Sam Horner 040935005
+ * Description: Iterates through the parser's histogram array and
+ * prints a statistical summary of how many times each BNF grammar
+ * rule was successfully matched and parsed.
  ***********************************************************
  */
-/*
-sofia_void printBNFData(ParserData psData) {
-}
-*/
 empty printBNFData(ParserData psData) {
 	/* Print Parser statistics */
 	printf("Statistics:\n");
@@ -591,6 +619,15 @@ empty printBNFData(ParserData psData) {
 	printf("----------------------------------\n");
 }
 
+/*
+ ************************************************************
+ * Function name: variableDeclarationStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses local variable declarations. It verifies the
+ * data type and identifier, handles optional inline assignments
+ * (e.g., variable = value), and enforces the semicolon terminator.
+ ***********************************************************
+ */
 empty variableDeclarationStatement() {
 	psData.parsHistogram[BNF_variableDeclarationStatement]++;
 
@@ -619,6 +656,16 @@ empty variableDeclarationStatement() {
 	printf("%s%s\n", STR_LANGNAME, ": Variable declaration parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: topLevelDeclaration
+ * Author: Sam Horner 040935005
+ * Description: Handles definitions at the global scope. It uses
+ * lookahead to distinguish between function definitions (expecting
+ * parentheses and braces), function prototypes (expecting a semicolon),
+ * and global variables.
+ ***********************************************************
+ */
 empty topLevelDeclaration() {
 	if (lookahead.code == MNID_T) {
 		matchToken(MNID_T, NO_ATTR);
@@ -659,6 +706,15 @@ empty topLevelDeclaration() {
 	}
 }
 
+/*
+ ************************************************************
+ * Function name: returnStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses the 'return' keyword followed by an
+ * arithmetic expression, ensuring that functions can correctly pass
+ * values back to the caller.
+ ***********************************************************
+ */
 empty returnStatement() {
 	psData.parsHistogram[BNF_returnStatement]++;
 	matchToken(KW_T, KW_return);
@@ -667,6 +723,15 @@ empty returnStatement() {
 	printf("%s%s\n", STR_LANGNAME, ": Return statement parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: functionCallStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses standalone function executions. It verifies
+ * that a method identifier is followed by an argument list enclosed
+ * in parentheses and terminated by a semicolon.
+ ***********************************************************
+ */
 empty functionCallStatement() {
 	matchToken(MNID_T, NO_ATTR);
 	matchToken(LPR_T, NO_ATTR);
@@ -676,6 +741,15 @@ empty functionCallStatement() {
 	printf("%s%s\n", STR_LANGNAME, ": Function call parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: argList
+ * Author: Sam Horner 040935005
+ * Description: Recursively parses a comma-separated list of
+ * arguments (variables, numbers, or strings) being passed into a
+ * function call.
+ ***********************************************************
+ */
 empty argList() {
 	/* If the lookahead is an identifier, number, or string, we have arguments */
 	if (lookahead.code == VID_T || lookahead.code == INL_T || lookahead.code == STR_T) {
@@ -689,6 +763,15 @@ empty argList() {
 	}
 }
 
+/*
+ ************************************************************
+ * Function name: assignmentStatement
+ * Author: Sam Horner 040935005
+ * Description: Handles the reassignment of existing variables.
+ * It matches a variable identifier, the equals sign operator, and
+ * the mathematical or literal expression being assigned to it.
+ ***********************************************************
+ */
 empty assignmentStatement() {
 	psData.parsHistogram[BNF_assignmentStatement]++;
 	matchToken(VID_T, NO_ATTR);
@@ -698,6 +781,15 @@ empty assignmentStatement() {
 	printf("%s%s\n", STR_LANGNAME, ": Assignment statement parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: arithmeticExpression
+ * Author: Sam Horner 040935005
+ * Description: The starting node for mathematical equations. It
+ * calls primaryExpression for the left side of the operation and
+ * then arithmeticExpressionPrime to build the right side.
+ ***********************************************************
+ */
 empty arithmeticExpression() {
 	psData.parsHistogram[BNF_arithmeticExpression]++;
 	primaryExpression();
@@ -705,6 +797,15 @@ empty arithmeticExpression() {
 	printf("%s%s\n", STR_LANGNAME, ": Arithmetic expression parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: arithmeticExpressionPrime
+ * Author: Sam Horner 040935005
+ * Description: Handles the recursive right-hand side of arithmetic
+ * operations, checking for math operators (+, -, *, /) and chaining
+ * further expressions together.
+ ***********************************************************
+ */
 empty arithmeticExpressionPrime() {
 	psData.parsHistogram[BNF_arithmeticExpressionPrime]++;
 	switch (lookahead.code) {
@@ -718,6 +819,15 @@ empty arithmeticExpressionPrime() {
 	}
 }
 
+/*
+ ************************************************************
+ * Function name: primaryExpression
+ * Author: Sam Horner 040935005
+ * Description: The smallest foundational unit of an expression.
+ * It validates terminal leaf values like variable identifiers,
+ * integer literals, floating-point literals, and strings.
+ ***********************************************************
+ */
 empty primaryExpression() {
 	psData.parsHistogram[BNF_primaryExpression]++;
 	switch (lookahead.code) {
@@ -738,6 +848,15 @@ empty primaryExpression() {
 	}
 }
 
+/*
+ ************************************************************
+ * Function name: selectionStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses 'if' and 'else' conditional blocks. It
+ * ensures the conditional expression is wrapped in parentheses and
+ * processes the resulting executable statements inside the braces.
+ ***********************************************************
+ */
 empty selectionStatement() {
 	/* Match: if */
 	matchToken(KW_T, KW_if);
@@ -763,6 +882,15 @@ empty selectionStatement() {
 	printf("%s%s\n", STR_LANGNAME, ": Selection statement parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: conditionalExpression
+ * Author: Sam Horner 040935005
+ * Description: Evaluates the logic inside control structures.
+ * It parses an arithmetic expression, followed optionally by a
+ * relational operator (==, <, >, !=) and a second expression to compare.
+ ***********************************************************
+ */
 empty conditionalExpression() {
 	/* Match the left side (e.g., 'param1') */
 	arithmeticExpression();
@@ -776,6 +904,15 @@ empty conditionalExpression() {
 	printf("%s%s\n", STR_LANGNAME, ": Conditional expression parsed");
 }
 
+/*
+ ************************************************************
+ * Function name: iterationStatement
+ * Author: Sam Horner 040935005
+ * Description: Parses both 'while' and 'do-while' loops. It ensures
+ * the conditional expressions and looped executable bodies are
+ * properly formatted and grammatically correct.
+ ***********************************************************
+ */
 empty iterationStatement() {
 	/* Pathway 1: Standard 'while' loop */
 	if (lookahead.code == KW_T && lookahead.attribute.codeType == KW_while) {
