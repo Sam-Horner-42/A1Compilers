@@ -43,15 +43,12 @@
 ************************************************************
 */
 
-/*
- *.............................................................................
- * MAIN ADVICE:
- * Please check the "TODO" labels to develop your activity.
- *.............................................................................
- */
-
 #ifndef COMPILERS_H_
 #include "../includes/Compilers.h"
+#endif
+
+#ifndef CODER_H_
+#include "../includes/Step1Coder.h"
 #endif
 
 #ifndef READER_H_
@@ -117,7 +114,7 @@ empty assign_string_variable(const word name, const word value);
 digit get_boolean_value(const word name);
 character get_char_value(const word name);
 bigrad get_numeric_value(const word name);
-const word get_string_value(const word name);
+word get_string_value(const word name);
 
 bigrad parse_term(word* expr);
 bigrad parse_expression(word* expr);

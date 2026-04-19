@@ -2,46 +2,30 @@
 # Samuel Horner 040935005 #
 # Function identifiers are appended with : #
 
-digit function:(digit param, duple isParam); # function declaration #
+empty function:(duple isParam); # function declaration #
 
 # String #
 word name = "Sam Horner";
 # integer #
 digit pi = 3.14;
 
-# main function #
-digit main:() {
-	
-	print:("Hello World");
-}
-
-digit function:(digit param, duple isParam) {
-	digit localParam;
-	if (isParam){
-		return param;
+empty compareFunction:(duple isParam) {
+	if (isParam == TRUE){
+		print:("isParam");
 	} else {
-		return param / 2;
-		}
-	return 0;
+		print:("not isParam");
+	}
 }
 
 empty otherFunction:(){
 	print:("Hello World");
 }
 
-empty iteration:() {
-	digit iterator = 1;
-	while(iterator < 10){
-		print:("While");
-		iterator = iterator + 1;
-	}
-}
-
-duple comparisonFunction:(digit val1, digit val2){
+empty comparisonFunction:(digit val1, digit val2){
 	if (val1 > val2){
-		return TRUE;
+		print:("Val1 greater than val2");
 	} else {
-		return FALSE;
+		print:("Val2 greater than val1");
 	}
 	if(val1 <= val2){
 		print:("Less than equal");
@@ -55,14 +39,24 @@ duple comparisonFunction:(digit val1, digit val2){
 
 }
 
-bigdigit mathOperations:(){
+empty mathOperations:(){
 	digit addition = 1 + 2;
 	digit division = 4 / 2;
 	digit multiplication = 2 * 2;
 	digit subtraction = 4 - 2;
-	digit exponent = 5^2;
-	digit modulo = 10%2;
+
+	rad floatAddition = 1.2 + 2.7;
+	rad floatDivision = 4.2 / 2.08;
+	rad floatMultiplication = 2.7 * 2.78;
+	rad floatSubtraction = 4.2 - 2.3;
 }
 
-
+# main function #
+digit main:() {
+	
+	print:("Hello World");
+	compareFunction:(TRUE);
+	comparisonFunction:(20, 3);
+	mathOperations:();
+}
 

@@ -367,11 +367,19 @@ empty comment() {
 empty optParams() {
 	psData.parsHistogram[BNF_optParams]++;
 	/* If the lookahead is a data type keyword, we have a parameter list */
-	if (lookahead.code == KW_T && (lookahead.attribute.codeType == KW_digit ||
+	if (lookahead.code == KW_T && (
+		lookahead.attribute.codeType == KW_digit ||
 		lookahead.attribute.codeType == KW_rad ||
-		lookahead.attribute.codeType == KW_word)) {
+		lookahead.attribute.codeType == KW_word ||
+		lookahead.attribute.codeType == KW_character ||
+		lookahead.attribute.codeType == KW_duple ||
+		lookahead.attribute.codeType == KW_byte ||
+		lookahead.attribute.codeType == KW_bigdigit ||
+		lookahead.attribute.codeType == KW_bigrad)) {
+
 		paramList();
 	}
+
 	/* Else, epsilon (empty) is valid */
 	printf("%s%s\n", STR_LANGNAME, ": Optional param list parsed");
 }

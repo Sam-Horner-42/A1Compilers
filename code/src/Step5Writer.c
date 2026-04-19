@@ -66,8 +66,17 @@ digit var_count = 0;
 digit initial_phase = 1; // Flag to track the initial phase
 character output_buffer[MAX_EXPR_LEN * 10] = { 0 }; // Buffer to store write output
 digit execute_block = 1; // 1 means execute, 0 means skip lines
+digit skip_next_else = 0; // Flag to check if the current conditional evaluates to true to skip the rest
 
-/* Finds variables */
+/*
+ ************************************************************
+ * Function name: find_variable
+ * Author: Sam Horner 040935005
+ * Description: Searches the global variables array to locate an
+ * existing variable by its identifier name. Returns the array
+ * index if a match is found, or -1 if the variable does not exist.
+ ***********************************************************
+ */
 digit find_variable(const word name) {
     digit i = 0;
     for (i = 0; i < var_count; ++i) {
@@ -78,11 +87,16 @@ digit find_variable(const word name) {
     return -1;
 }
 
-/* Assign numerical variable */
+/* Assign numeric variable */
 empty assign_numeric_variable(const word name, bigrad value) {
     digit idx = find_variable(name);
     if (idx == -1) {
         idx = var_count++;
+		// Defensive programming: Prevent array out-of-bounds crash
+		if (var_count >= MAX_VARS) {
+			printf("Error: Maximum number of variables (%d) exceeded!\n", MAX_VARS);
+			return;
+		}
         strcpy_s(variables[idx].name, sizeof(variables[idx].name), name);
     }
     variables[idx].type = NUMERIC;
@@ -112,6 +126,7 @@ empty assign_boolean_variable(const word name, digit value) {
     variables[idx].value.bool_value = value;
 }
 
+/* Get boolean variable */
 digit get_boolean_value(const word name) {
     digit idx = find_variable(name);
     if (idx != -1 && variables[idx].type == BOOLEAN) {
@@ -150,7 +165,7 @@ bigrad get_numeric_value(const word name) {
 }
 
 /* Gets string variable */
-const word get_string_value(const word name) {
+word get_string_value(const word name) {
     digit idx = find_variable(name);
     if (idx != -1 && variables[idx].type == STRING) {
         return variables[idx].value.str_value;
@@ -158,7 +173,17 @@ const word get_string_value(const word name) {
     return STREMPTY;
 }
 
-/* Parsing for term */
+/*
+ ************************************************************
+ * Function name: parse_term
+ * Author: Sam Horner 040935005
+ * Description: Processes terms in an arithmetic expression,
+ * handling multiplication, division, parentheses, and variable
+ * lookups. It recursively calls parse_expression for nested
+ * groupings and ensures proper order of operations for high-
+ * precedence mathematical operators.
+ ***********************************************************
+ */
 bigrad parse_term(word* expr) {
     bigrad value = 0.0;
     while (isspace(**expr)) (*expr)++;
@@ -201,7 +226,17 @@ bigrad parse_term(word* expr) {
     return value;
 }
 
-/* Parsing for expression */
+/*
+ ************************************************************
+ * Function name: parse_expression
+ * Author: Sam Horner 040935005
+ * Description: Evaluates additive arithmetic expressions by
+ * processing terms separated by addition or subtraction
+ * operators. It maintains left-to-right associativity and
+ * relies on parse_term to handle higher-precedence operations,
+ * returning the final calculated bigrad value.
+ ***********************************************************
+ */
 bigrad parse_expression(word* expr) {
     bigrad value = parse_term(expr);
     while (isspace(**expr)) (*expr)++;
@@ -218,7 +253,18 @@ bigrad parse_expression(word* expr) {
     return value;
 }
 
-/* Write output */
+/*
+ ************************************************************
+ * Function name: handle_write
+ * Author: Sam Horner 040935005
+ * Description: Processes output statements by parsing the
+ * contents of parentheses. It extracts string literals and
+ * retrieves variable values (numeric, string, boolean, or char)
+ * from the global table, concatenating them into a buffer
+ * for either immediate display or storage in the global
+ * output buffer.
+ ***********************************************************
+ */
 empty handle_write(word expression) {
     character buffer[MAX_EXPR_LEN] = { 0 };
     word start = strchr(expression, LPAR) + 1;
@@ -270,6 +316,10 @@ empty handle_write(word expression) {
         }
     }
     if (initial_phase) {
+		if (strlen(output_buffer) + strlen(buffer) + 2 >= sizeof(output_buffer)) {
+			printf("Error: Output buffer is full. Cannot print any more text.\n");
+			return;
+		}
         strcat_s(output_buffer, sizeof(output_buffer), buffer);
         character replacement[] = "[Undefined]";
         if (strlen(buffer) == 0) {
@@ -283,6 +333,39 @@ empty handle_write(word expression) {
     }
 }
 
+/*
+ ************************************************************
+ * Function name: evaluate_value
+ * Author: Sam Horner 040935005
+ * Description: Converts a string operand into a numeric value
+ * for logical or mathematical evaluation. It handles boolean
+ * literals (TRUE/FALSE), performs lookups for variable
+ * identifiers to retrieve their stored values, or converts
+ * standard numeric strings into bigrad format.
+ ***********************************************************
+ */
+bigrad evaluate_value(character* operand_string) {
+	
+	if (operand_string == NULL || strlen(operand_string) == 0) {
+		return 0.0;
+	}
+	// Check if the string is a literal TRUE or FALSE
+	if (strcmp(operand_string, "TRUE") == 0) return 1.0;
+	if (strcmp(operand_string, "FALSE") == 0) return 0.0;
+
+	// Check if the string starts with a letter (meaning it's a variable name like 'myTrueBool')
+	if (isalpha(operand_string[0])) {
+		digit idx = find_variable(operand_string);
+		if (idx != -1) {
+			if (variables[idx].type == BOOLEAN) return variables[idx].value.bool_value;
+			if (variables[idx].type == NUMERIC) return variables[idx].value.num_value;
+		}
+		return 0.0; // Default if variable not found
+	}
+
+	// Otherwise, it must be a standard number string (like "42.5")
+	return strtod(operand_string, NULL);
+}
 
 /* Handles <, >, <=, >=, != */
 /* Handle if comparisons */
@@ -299,9 +382,9 @@ empty handle_comparison(word expr) {
 		// Extract Left Side, Operator, and Right Side
 		if (sscanf_s(condition, "%31s %2s %31s", var1, (unsigned)_countof(var1), op, (unsigned)_countof(op), var2, (unsigned)_countof(var2)) == 3) {
 
-			// Get values: if it's a variable name, fetch it. Otherwise, convert the raw number.
-			bigrad val1 = isalpha(var1[0]) ? get_numeric_value(var1) : strtod(var1, NULL);
-			bigrad val2 = isalpha(var2[0]) ? get_numeric_value(var2) : strtod(var2, NULL);
+			// Convert the extracted strings into values we can do math on
+			bigrad val1 = evaluate_value(var1);
+			bigrad val2 = evaluate_value(var2);
 
 			// Evaluate the condition
 			if (strcmp(op, "==") == 0) execute_block = (val1 == val2);
@@ -314,57 +397,76 @@ empty handle_comparison(word expr) {
 		}
 	}
 }
-/* Calculate expression */
+
+/*
+ ************************************************************
+ * Function name: calculate
+ * Author: Sam Horner 040935005
+ * Description: The core interpreter engine that processes
+ * individual lines of code. It manages control flow logic
+ * (if/else if/else), handles variable assignments for multiple
+ * data types, routes output to the writer handler, and
+ * evaluates standalone arithmetic expressions. It uses
+ * state flags to track nested block execution and skip
+ * logic as necessary.
+ ***********************************************************
+ */
 empty calculate(word expression) {
 	character var_name[32] = { 0 };
 
-	// 1. Strip leading whitespace to make parsing easier
+	// Strip leading whitespace to make parsing easier
 	word expr = expression;
 	while (isspace(*expr)) expr++;
 
-	// 2. Handle the end of a block '}'
+	// Handle the end of a block '}', which might be attached to an 'else'
 	if (*expr == '}') {
-		execute_block = 1; // Reset block execution for the next lines
-		return;
+		execute_block = 1;             // Reset block execution for the next lines
+		expr++;                        // Move past the '}'
+		while (isspace(*expr)) expr++; // Skip any spaces after '}'
+
+		// If the line was ONLY a '}', we are done with this line
+		if (*expr == EOS || *expr == '\0') {
+			return;
+		}
 	}
 
-	// 3. If we are inside a failed block, skip executing this line entirely
+	// If we are inside a failed block, skip executing this line entirely
 	if (!execute_block) {
 		return;
 	}
 
-	// 4. Handle 'if' statements BEFORE looking for assignments
-	if (strncmp(expr, "if", 2) == 0) {
-		character var1[32] = { 0 }, op[3] = { 0 }, var2[32] = { 0 };
-		word start = strchr(expr, LPAR);
-		word end = strchr(expr, RPAR);
-
-		if (start && end) {
-			start++; // Move past '('
-			character condition[128] = { 0 };
-			strncpy_s(condition, sizeof(condition), start, end - start);
-
-			// Extract Left Side, Operator, and Right Side
-			if (sscanf_s(condition, "%31s %2s %31s", var1, (unsigned)_countof(var1), op, (unsigned)_countof(op), var2, (unsigned)_countof(var2)) == 3) {
-
-				// Get values: if it's a variable name, fetch it. Otherwise, convert the raw number.
-				bigrad val1 = isalpha(var1[0]) ? get_numeric_value(var1) : strtod(var1, NULL);
-				bigrad val2 = isalpha(var2[0]) ? get_numeric_value(var2) : strtod(var2, NULL);
-
-				// Evaluate the condition
-				if (strcmp(op, "==") == 0) execute_block = (val1 == val2);
-				else if (strcmp(op, "!=") == 0) execute_block = (val1 != val2);
-				else if (strcmp(op, "<=") == 0) execute_block = (val1 <= val2);
-				else if (strcmp(op, ">=") == 0) execute_block = (val1 >= val2);
-				else if (strcmp(op, "<") == 0) execute_block = (val1 < val2);
-				else if (strcmp(op, ">") == 0) execute_block = (val1 > val2);
-				else execute_block = 0; // Default to false if operator is weird
-			}
+	// Handle 'else if'
+	if (strncmp(expr, "else if", 7) == 0) {
+		if (skip_next_else) {
+			execute_block = 0; // The previous 'if' was true, so we skip this block
 		}
-		return; // We evaluated the IF statement, move to the next line
+		else {
+			handle_comparison(expr); // Evaluate this new condition!
+			skip_next_else = execute_block; // If this evaluates to true, skip following elses
+		}
+		return;
 	}
 
-	// 5. Existing Assignment Logic (Modified to ignore '==')
+	// Handle 'else'
+	else if (strncmp(expr, "else", 4) == 0) {
+		if (skip_next_else) {
+			execute_block = 0; // The previous 'if' was true, so skip the else
+		}
+		else {
+			execute_block = 1; // The previous 'if' was false, so execute the else
+		}
+		skip_next_else = 0; // Reset the memory flag
+		return;
+	}
+
+	// Handle standard 'if'
+	else if (strncmp(expr, "if", 2) == 0) {
+		handle_comparison(expr);
+		skip_next_else = execute_block; // Remember if this was true or false for the next 'else'
+		return;
+	}
+
+	// Existing Assignment Logic (Modified to ignore '==' and handle TRUE/FALSE)
 	word equals_ptr = strchr(expr, EQUALS);
 
 	// Make sure we found an '=', AND make sure the next character isn't also an '='
@@ -398,11 +500,11 @@ empty calculate(word expression) {
 				printf("%s = \"%s\"\n", var_name, str_value);
 			}
 		}
-		else if (strncmp(rhs_expr, "true", 4) == 0 || strncmp(rhs_expr, "false", 5) == 0) {
-			digit bool_value = strncmp(rhs_expr, "true", 4) == 0 ? 1 : 0;
+		else if (strncmp(rhs_expr, "TRUE", 4) == 0 || strncmp(rhs_expr, "FALSE", 5) == 0) {
+			digit bool_value = strncmp(rhs_expr, "TRUE", 4) == 0 ? 1 : 0;
 			assign_boolean_variable(var_name, bool_value);
 			if (!initial_phase) {
-				printf("%s = %s\n", var_name, bool_value ? "true" : "false");
+				printf("%s = %s\n", var_name, bool_value ? "TRUE" : "FALSE");
 			}
 		}
 		else if (*rhs_expr == QUOTE) {
@@ -433,7 +535,18 @@ empty calculate(word expression) {
 	}
 }
 
-/* Process input file */
+/*
+ ************************************************************
+ * Function name: process_file
+ * Author: Sam Horner 040935005
+ * Description: Reads a source file line by line and passes
+ * each valid line to the calculate function for interpretation.
+ * After the file is fully processed, it transitions out of
+ * the initial phase, flushes the output buffer to the console,
+ * and prints a final report of all variable names and their
+ * final stored values across all supported types.
+ ***********************************************************
+ */
 empty process_file(const word filename) {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -522,7 +635,7 @@ word* splitIntoLines(const word content, digit* lineCount) {
 }
 
 /* Free lines */
-empty freeLines(word* lines, word lineCount) {
+empty freeLines(word* lines, digit lineCount) {
     digit i = 0;
     for (i = 0; i < lineCount; i++) {
         free(lines[i]);
@@ -530,10 +643,22 @@ empty freeLines(word* lines, word lineCount) {
     free(lines);
 }
 
-/* Process content */
+/*
+ ************************************************************
+ * Function name: process_content
+ * Author: Sam Horner 040935005
+ * Description: Interprets the program logic from a raw string
+ * of file content. It splits the content into individual
+ * lines, iterates through them for calculation, and manages
+ * memory by freeing the line array after execution. Finally,
+ * it outputs the results of all write statements and a
+ * comprehensive table of variable states.
+ ***********************************************************
+ */
 empty process_content(word fileContent) {
     digit lineCount = 0;
     word* lines = splitIntoLines(fileContent, &lineCount);
+
     word line = malloc(MAX_EXPR_LEN);
     if (!lines || !line) {
         return;
@@ -561,4 +686,5 @@ empty process_content(word fileContent) {
             printf("%s = '%c'\n", variables[i].name, variables[i].value.char_value);
         }
     }
+	freeLines(lines, lineCount); // free the lines to avoid memory leaks
 }

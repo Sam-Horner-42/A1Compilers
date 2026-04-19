@@ -1,0 +1,26 @@
+duple myFalseBool = FALSE;
+duple myTrueBool = TRUE;
+
+if(myTrueBool == TRUE) {
+	print:("First conditional is True");
+} else {
+	print:("First conditional is False");
+}
+
+if(myFalseBool == FALSE) {
+	print:("Second conditional is False");
+} else {
+	print:("Second conditional is True");
+}
+
+if(myTrueBool == FALSE) {
+	print:("Third conditional is True");
+} else {
+	print:("Third conditional is False");
+}
+
+if(myFalseBool == TRUE) {
+	print:("Fourth conditional is False");
+} else {
+	print:("Fourth conditional is True");
+}
