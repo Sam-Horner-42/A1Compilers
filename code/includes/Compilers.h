@@ -81,6 +81,7 @@ digit main1Coder(digit argc, word* argv);
 digit main2Reader(digit argc, word* argv);
 digit main3Scanner(digit argc, word* argv);
 digit main4Parser(digit argc, word* argv);
+digit main5Writer(digit argc, word* argv);
 
 empty printLogo();
 empty errorPrint(word fmt, ...);

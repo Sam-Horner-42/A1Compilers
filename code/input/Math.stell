@@ -1,1 +1,12 @@
-+/*-
+digit intTerm1 = 5;
+digit intTerm2 = 10;
+digit intResult = intTerm1 + intTerm2;
+
+rad floatTerm1 = 5.0;
+rad pi = 3.14;
+
+rad floatMultResult = floatTerm1 * pi;
+
+rad floatDivResult = floatTerm1/pi;
+
+radFloatAddResult = floatTerm1 + pi;

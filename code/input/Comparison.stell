@@ -1,2 +1,32 @@
-if(param1){
-} else {}
+digit param1 = 2;
+digit param2 = 3;
+
+digit param3 = 4;
+digit param4 = 4;
+
+if(param1 == param2) {
+	print:("param1 and param2 are equal");
+} 
+if (param1 <= param2) {
+	print:("param1 and param2 are less than or equal");
+	}
+if (param1 >= param2) {
+	print:("param1 and param2 are greater than or equal");
+}
+if (param1 != param2) {
+	print:("param1 and param2 are not equal");
+}
+
+if(param3 == param4) {
+	print:("param3 and param4 are equal");
+} 
+if (param3 <= param4) {
+	print:("param3 and param4 are less than or equal");
+	}
+if (param3 >= param4) {
+	print:("param3 and param4 are greater than or equal");
+}
+if (param3 != param4) {
+	print:("param3 and param4 are not equal");
+}
+

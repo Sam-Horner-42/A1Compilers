@@ -3,6 +3,7 @@ digit myFunction:(digit param1, duple param2);
 digit myFunction:(digit param1, duple param2){
 	digit myVal = param1 * param2;
 	print:("Hello");
+	print:(myVal);
 	return myVal;
 }
 
